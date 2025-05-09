@@ -21,7 +21,8 @@ const AuthButton = () => {
   // to prevent hydration mismatch between server and client
   useEffect(() => {
     setMounted(true);
-  }, []);
+    console.log("AuthButton mounted, user state:", user);
+  }, [user]);
 
   const handleSignOut = async () => {
     await signOut();
@@ -37,6 +38,9 @@ const AuthButton = () => {
   if (!mounted) {
     return null;
   }
+
+  // Debug log to check user state
+  console.log("Rendering AuthButton, user:", user);
 
   if (!user) {
     return (
