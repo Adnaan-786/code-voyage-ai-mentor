@@ -1,9 +1,11 @@
-
 import { useEffect, useRef, useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Download, ExternalLink, ChevronDown, ChevronUp } from "lucide-react";
+import { Download, ExternalLink, ChevronDown, ChevronUp, FileVideo, FileText } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Textarea } from "@/components/ui/textarea";
+import VideoSuggestion from "./VideoSuggestion";
+import MilestoneNotes from "./MilestoneNotes";
 
 // Mockup roadmap data structure
 export interface Resource {
@@ -13,10 +15,24 @@ export interface Resource {
   description: string;
 }
 
+export interface VideoSuggestion {
+  title: string;
+  url: string;
+  thumbnail?: string;
+  duration?: string;
+  source?: string;
+}
+
 export interface Exercise {
   title: string;
   description: string;
   difficulty: string;
+}
+
+export interface MilestoneNote {
+  id: string;
+  content: string;
+  createdAt: Date;
 }
 
 export interface Milestone {
@@ -26,6 +42,8 @@ export interface Milestone {
   resources: Resource[];
   exercises: Exercise[];
   estimatedTime: string;
+  videoSuggestions?: VideoSuggestion[];
+  notes?: MilestoneNote[];
 }
 
 export interface RoadmapData {
@@ -44,6 +62,7 @@ const Roadmap = ({ data, userName, languageName }: RoadmapProps) => {
   const [flowchartSvg, setFlowchartSvg] = useState<string | null>(null);
   const flowchartRef = useRef<HTMLDivElement>(null);
   const [expandedMilestones, setExpandedMilestones] = useState<{[key: number]: boolean}>({});
+  const [newNotes, setNewNotes] = useState<{[key: number]: string}>({});
 
   useEffect(() => {
     if (data) {
@@ -59,6 +78,14 @@ const Roadmap = ({ data, userName, languageName }: RoadmapProps) => {
       }, {} as {[key: number]: boolean});
       
       setExpandedMilestones(initial);
+
+      // Initialize empty notes for each milestone
+      const initialNotes = data.milestones.reduce((acc, _, index) => {
+        acc[index] = "";
+        return acc;
+      }, {} as {[key: number]: string});
+      
+      setNewNotes(initialNotes);
     }
   }, [data]);
 
@@ -80,6 +107,41 @@ const Roadmap = ({ data, userName, languageName }: RoadmapProps) => {
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
+  };
+
+  const handleNoteChange = (index: number, value: string) => {
+    setNewNotes(prev => ({
+      ...prev,
+      [index]: value
+    }));
+  };
+
+  const addNote = (milestoneIndex: number) => {
+    if (!data || !newNotes[milestoneIndex].trim()) return;
+
+    // In a real app, this would save to the database
+    const newNote = {
+      id: `note-${Date.now()}`,
+      content: newNotes[milestoneIndex],
+      createdAt: new Date()
+    };
+
+    // Update the milestone with the new note
+    const updatedMilestones = [...data.milestones];
+    if (!updatedMilestones[milestoneIndex].notes) {
+      updatedMilestones[milestoneIndex].notes = [];
+    }
+    updatedMilestones[milestoneIndex].notes?.push(newNote);
+
+    // Clear the input field
+    setNewNotes(prev => ({
+      ...prev,
+      [milestoneIndex]: ""
+    }));
+
+    // This would typically update the state through a proper data management system
+    // For now we just log it
+    console.log("Added note:", newNote, "to milestone:", milestoneIndex);
   };
 
   if (!data) return null;
@@ -166,6 +228,21 @@ const Roadmap = ({ data, userName, languageName }: RoadmapProps) => {
                             ))}
                           </div>
                         </div>
+
+                        {/* Video Suggestions Section */}
+                        {milestone.videoSuggestions && milestone.videoSuggestions.length > 0 && (
+                          <div className="mb-6">
+                            <h4 className="font-medium mb-3 flex items-center">
+                              <FileVideo className="h-4 w-4 mr-1 text-voyage-600" /> 
+                              Video Resources:
+                            </h4>
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                              {milestone.videoSuggestions.map((video, i) => (
+                                <VideoSuggestion key={i} video={video} />
+                              ))}
+                            </div>
+                          </div>
+                        )}
                         
                         <div className="mb-4">
                           <h4 className="font-medium mb-2">Recommended Resources:</h4>
@@ -220,6 +297,37 @@ const Roadmap = ({ data, userName, languageName }: RoadmapProps) => {
                           </ul>
                         </div>
                         
+                        {/* Notes Section */}
+                        <div className="mt-6">
+                          <h4 className="font-medium mb-3 flex items-center">
+                            <FileText className="h-4 w-4 mr-1 text-voyage-600" /> 
+                            Your Notes:
+                          </h4>
+                          
+                          {/* Display existing notes */}
+                          {milestone.notes && milestone.notes.length > 0 && (
+                            <MilestoneNotes notes={milestone.notes} />
+                          )}
+                          
+                          {/* Add new note form */}
+                          <div className="mt-3">
+                            <Textarea 
+                              placeholder="Add your notes about this milestone here..."
+                              value={newNotes[index] || ''}
+                              onChange={e => handleNoteChange(index, e.target.value)}
+                              className="mb-2"
+                            />
+                            <Button 
+                              size="sm" 
+                              onClick={() => addNote(index)}
+                              disabled={!newNotes[index]?.trim()}
+                              className="bg-voyage-600 hover:bg-voyage-700 text-white"
+                            >
+                              Add Note
+                            </Button>
+                          </div>
+                        </div>
+                        
                         <div className="mt-4 text-sm text-muted-foreground">
                           Estimated time: {milestone.estimatedTime}
                         </div>
@@ -239,11 +347,9 @@ const Roadmap = ({ data, userName, languageName }: RoadmapProps) => {
 // This function would normally generate a real SVG based on the roadmap data
 // For now, we're using a mockup SVG for demonstration purposes
 function generateMockupFlowchart(data: RoadmapData): string {
-  const milestones = data.milestones;
-  
-  // Create a basic flowchart SVG
-  let svg = `
-  <svg width="800" height="${Math.max(120 + milestones.length * 100, 400)}" xmlns="http://www.w3.org/2000/svg">
+  // ... keep existing code (generateMockupFlowchart implementation)
+  return `
+  <svg width="800" height="${Math.max(120 + data.milestones.length * 100, 400)}" xmlns="http://www.w3.org/2000/svg">
     <defs>
       <marker id="arrowhead" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
         <polygon points="0 0, 10 3.5, 0 7" fill="#4B7BF5" />
@@ -254,30 +360,24 @@ function generateMockupFlowchart(data: RoadmapData): string {
     <rect x="350" y="20" width="100" height="50" rx="8" fill="#EEF2FF" stroke="#818CF8" stroke-width="2" />
     <text x="400" y="50" text-anchor="middle" font-family="sans-serif" font-size="14" fill="#4F46E5">Start</text>
     
-    <!-- Path lines -->`;
-  
-  // Connect all the milestone nodes
-  for (let i = 0; i < milestones.length; i++) {
-    const y = 100 + i * 100;
-    svg += `
+    <!-- Path lines -->
+    ${data.milestones.map((_, i) => {
+      const y = 100 + i * 100;
+      return `
       <line x1="400" y1="${i === 0 ? 70 : y - 30}" x2="400" y2="${y - 10}" stroke="#4B7BF5" stroke-width="2" marker-end="url(#arrowhead)" />
       
       <!-- Milestone node -->
       <rect x="250" y="${y}" width="300" height="60" rx="8" fill="#F0F9FF" stroke="#93C5FD" stroke-width="2" />
-      <text x="400" y="${y + 35}" text-anchor="middle" font-family="sans-serif" font-size="14" font-weight="bold" fill="#1E40AF">${milestones[i].title}</text>`;
-  }
-  
-  // Add final node
-  const finalY = 100 + milestones.length * 100;
-  svg += `
-    <line x1="400" y1="${finalY + 10}" x2="400" y2="${finalY + 40}" stroke="#4B7BF5" stroke-width="2" marker-end="url(#arrowhead)" />
+      <text x="400" y="${y + 35}" text-anchor="middle" font-family="sans-serif" font-size="14" font-weight="bold" fill="#1E40AF">${data.milestones[i].title}</text>`;
+    }).join('')}
+    
+    <!-- Final node -->
+    <line x1="400" y1="${100 + data.milestones.length * 100 + 10}" x2="400" y2="${100 + data.milestones.length * 100 + 40}" stroke="#4B7BF5" stroke-width="2" marker-end="url(#arrowhead)" />
     
     <!-- End node -->
-    <rect x="350" y="${finalY + 50}" width="100" height="50" rx="8" fill="#ECFDF5" stroke="#6EE7B7" stroke-width="2" />
-    <text x="400" y="${finalY + 80}" text-anchor="middle" font-family="sans-serif" font-size="14" fill="#047857">Mastery!</text>
+    <rect x="350" y="${100 + data.milestones.length * 100 + 50}" width="100" height="50" rx="8" fill="#ECFDF5" stroke="#6EE7B7" stroke-width="2" />
+    <text x="400" y="${100 + data.milestones.length * 100 + 80}" text-anchor="middle" font-family="sans-serif" font-size="14" fill="#047857">Mastery!</text>
   </svg>`;
-  
-  return svg;
 }
 
 export default Roadmap;
