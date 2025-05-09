@@ -27,540 +27,896 @@ export async function generateRoadmap(formData: FormData): Promise<RoadmapData> 
 }
 
 function generateOverview(formData: FormData): string {
-  const { language, goal, currentSkill } = formData;
+  const { language, goal, currentSkill, learningStyle, timeCommitment } = formData;
   
-  if (language === "JavaScript") {
-    if (currentSkill <= 2) {
-      return `This roadmap will guide you from the basics of ${language} to becoming proficient enough to ${goal}. Starting with fundamentals, you'll progress through interactive exercises and projects tailored to your ${formData.learningStyle} learning style.`;
-    } else {
-      return `Building on your existing knowledge of ${language}, this advanced roadmap will help you ${goal}. You'll deepen your expertise through specialized topics and increasingly complex projects aligned with your ${formData.learningStyle} learning preferences.`;
-    }
-  } else if (language === "Python") {
-    if (currentSkill <= 2) {
-      return `This personalized roadmap introduces you to Python from the ground up, focusing on helping you ${goal}. Each milestone includes resources and exercises chosen for your ${formData.learningStyle} learning style.`;
-    } else {
-      return `As an experienced Python developer, this roadmap will expand your capabilities to help you ${goal}. The path focuses on advanced concepts and real-world applications that match your ${formData.learningStyle} learning preferences.`;
-    }
+  // Create personalized overview based on user choices
+  let overview = `This personalized ${language} roadmap is designed to help you ${goal}. `;
+  
+  // Add skill level context
+  if (currentSkill <= 1) {
+    overview += `Starting from the absolute basics, `;
+  } else if (currentSkill <= 3) {
+    overview += `Building on your foundational knowledge, `;
   } else {
-    if (currentSkill <= 2) {
-      return `This roadmap provides a structured path to learn ${language} from scratch and achieve your goal to ${goal}. Each step includes carefully selected resources that match your ${formData.learningStyle} learning style.`;
-    } else {
-      return `This advanced ${language} roadmap will refine your existing skills and help you ${goal}. The curriculum builds on your current knowledge with specialized topics and projects tailored to your ${formData.learningStyle} learning approach.`;
-    }
+    overview += `Expanding your advanced expertise, `;
   }
+  
+  // Add learning style context
+  if (learningStyle === "visual") {
+    overview += `this path emphasizes video tutorials and visual resources to match your visual learning preference. `;
+  } else if (learningStyle === "reading") {
+    overview += `this path features comprehensive documentation and articles to suit your reading-based learning style. `;
+  } else if (learningStyle === "interactive") {
+    overview += `this path focuses on interactive exercises and projects for your hands-on learning style. `;
+  } else {
+    overview += `this path includes a balanced mix of resources to accommodate your learning preferences. `;
+  }
+  
+  // Add time commitment context
+  if (timeCommitment === "1-3 hours/week") {
+    overview += `The milestones are sized appropriately for your limited weekly time commitment of 1-3 hours.`;
+  } else if (timeCommitment === "4-6 hours/week") {
+    overview += `Each milestone is designed to fit within your moderate weekly time commitment of 4-6 hours.`;
+  } else if (timeCommitment === "7+ hours/week") {
+    overview += `The comprehensive milestones take advantage of your significant time commitment of 7+ hours per week.`;
+  } else {
+    overview += `The pace is flexible to adapt to your available study time.`;
+  }
+  
+  return overview;
 }
 
 function generateMilestones(formData: FormData): any[] {
-  const { language, currentSkill } = formData;
+  const { language, currentSkill, learningStyle, timeCommitment } = formData;
   let milestones = [];
   
-  // Generate milestones based on language and skill level
+  // Generate language-specific milestones
+  const languageMilestones = generateLanguageSpecificMilestones(language, currentSkill);
+  
+  // Adjust milestones based on learning style
+  adaptMilestonesToLearningStyle(languageMilestones, learningStyle);
+  
+  // Adjust milestones based on time commitment
+  adaptMilestonesToTimeCommitment(languageMilestones, timeCommitment);
+  
+  return languageMilestones;
+}
+
+function generateLanguageSpecificMilestones(language: string, skillLevel: number): any[] {
+  // Base milestones by language and skill level
   if (language === "JavaScript") {
-    if (currentSkill <= 2) {
-      milestones = [
-        {
-          title: "JavaScript Fundamentals",
-          description: "Learn the core concepts of JavaScript including variables, data types, operators, and control flow.",
-          skills: ["Variables", "Data Types", "Operators", "Control Flow", "Functions"],
-          resources: [
-            {
-              title: "JavaScript Basics - MDN Web Docs",
-              url: "https://developer.mozilla.org/en-US/docs/Learn/JavaScript/First_steps",
-              type: "documentation",
-              description: "Official Mozilla documentation on JavaScript basics."
-            },
-            {
-              title: "JavaScript Fundamentals - The Odin Project",
-              url: "https://www.theodinproject.com/paths/full-stack-javascript/courses/javascript",
-              type: "course",
-              description: "Free, comprehensive JavaScript fundamentals course."
-            },
-            {
-              title: "JavaScript Crash Course For Beginners",
-              url: "https://www.youtube.com/watch?v=hdI2bqOjy3c",
-              type: "video",
-              description: "A quick overview of JavaScript fundamentals in one video."
-            }
-          ],
-          videoSuggestions: [
-            {
-              title: "JavaScript Fundamentals for Beginners",
-              url: "https://www.youtube.com/watch?v=W6NZfCO5SIk",
-              thumbnail: "https://i.ytimg.com/vi/W6NZfCO5SIk/mqdefault.jpg",
-              duration: "48:17",
-              source: "Programming with Mosh"
-            },
-            {
-              title: "JavaScript Tutorial for Beginners: Learn JavaScript in 1 Hour",
-              url: "https://www.youtube.com/watch?v=W6NZfCO5SIk",
-              thumbnail: "https://i.ytimg.com/vi/W6NZfCO5SIk/mqdefault.jpg",
-              duration: "1:18:56",
-              source: "Programming with Mosh"
-            }
-          ],
-          exercises: [
-            {
-              title: "Variable and Data Type Practice",
-              description: "Create variables of each type and practice converting between types.",
-              difficulty: "easy"
-            },
-            {
-              title: "Control Flow Challenge",
-              description: "Write programs using if/else statements and loops to solve simple problems.",
-              difficulty: "easy"
-            },
-            {
-              title: "Function Builder",
-              description: "Create functions with parameters and return values to perform specific tasks.",
-              difficulty: "medium"
-            }
-          ],
-          notes: [],
-          estimatedTime: "2-3 weeks"
-        },
-        {
-          title: "DOM Manipulation",
-          description: "Learn how to interact with HTML using JavaScript by manipulating the Document Object Model.",
-          skills: ["DOM Selection", "Event Handling", "DOM Traversal", "DOM Manipulation"],
-          resources: [
-            {
-              title: "DOM Manipulation - JavaScript.info",
-              url: "https://javascript.info/document",
-              type: "documentation",
-              description: "Comprehensive guide on working with the Document Object Model."
-            },
-            {
-              title: "JavaScript DOM Manipulation Course",
-              url: "https://www.udemy.com/course/javascript-dom-manipulation/",
-              type: "course",
-              description: "Hands-on course covering all aspects of DOM manipulation."
-            },
-            {
-              title: "DOM Manipulation in JavaScript",
-              url: "https://www.youtube.com/watch?v=y17RuWkWdn8",
-              type: "video",
-              description: "Visual guide to DOM manipulation techniques."
-            }
-          ],
-          videoSuggestions: [
-            {
-              title: "JavaScript DOM Manipulation – Full Course for Beginners",
-              url: "https://www.youtube.com/watch?v=5fb2aPlgoys",
-              thumbnail: "https://i.ytimg.com/vi/5fb2aPlgoys/mqdefault.jpg",
-              duration: "3:38:45",
-              source: "freeCodeCamp.org"
-            },
-            {
-              title: "JavaScript DOM Traversal Made Easy",
-              url: "https://www.youtube.com/watch?v=v7rSSy8CaYE",
-              thumbnail: "https://i.ytimg.com/vi/v7rSSy8CaYE/mqdefault.jpg",
-              duration: "12:45",
-              source: "Web Dev Simplified"
-            }
-          ],
-          exercises: [
-            {
-              title: "Element Selector",
-              description: "Practice selecting and modifying elements from an HTML page.",
-              difficulty: "easy"
-            },
-            {
-              title: "Event Listener Workshop",
-              description: "Create various event listeners to respond to user interactions.",
-              difficulty: "medium"
-            },
-            {
-              title: "Dynamic Content Creator",
-              description: "Build a script that dynamically creates and modifies page content.",
-              difficulty: "medium"
-            }
-          ],
-          notes: [],
-          estimatedTime: "2-3 weeks"
-        },
-        {
-          title: "Asynchronous JavaScript",
-          description: "Master asynchronous programming concepts including callbacks, promises, and async/await.",
-          skills: ["Callbacks", "Promises", "Async/Await", "Fetch API"],
-          resources: [
-            {
-              title: "Asynchronous JavaScript - MDN",
-              url: "https://developer.mozilla.org/en-US/docs/Learn/JavaScript/Asynchronous",
-              type: "documentation",
-              description: "Official Mozilla guide to asynchronous JavaScript concepts."
-            },
-            {
-              title: "JavaScript Promises, Async/Await - freeCodeCamp",
-              url: "https://www.freecodecamp.org/learn/javascript-algorithms-and-data-structures/",
-              type: "course",
-              description: "Interactive lessons on promises and async functions."
-            },
-            {
-              title: "Asynchronous JavaScript Tutorial",
-              url: "https://www.youtube.com/watch?v=PoRJizFvM7s",
-              type: "video",
-              description: "Comprehensive video on handling asynchronous operations."
-            }
-          ],
-          videoSuggestions: [
-            {
-              title: "Async JavaScript Crash Course - Callbacks, Promises, Async Await",
-              url: "https://www.youtube.com/watch?v=PoRJizFvM7s",
-              thumbnail: "https://i.ytimg.com/vi/PoRJizFvM7s/mqdefault.jpg",
-              duration: "38:52",
-              source: "Traversy Media"
-            },
-            {
-              title: "JavaScript Promises In 10 Minutes",
-              url: "https://www.youtube.com/watch?v=DHvZLI7Db8E",
-              thumbnail: "https://i.ytimg.com/vi/DHvZLI7Db8E/mqdefault.jpg",
-              duration: "10:25",
-              source: "Web Dev Simplified"
-            }
-          ],
-          exercises: [
-            {
-              title: "Promise Chain",
-              description: "Create a series of promises that depend on each other's results.",
-              difficulty: "medium"
-            },
-            {
-              title: "Async Data Fetcher",
-              description: "Build an application that fetches and displays data from an API.",
-              difficulty: "medium"
-            },
-            {
-              title: "Error Handler",
-              description: "Implement proper error handling in asynchronous code.",
-              difficulty: "hard"
-            }
-          ],
-          notes: [],
-          estimatedTime: "3-4 weeks"
-        },
-        {
-          title: "Project: Interactive Web Application",
-          description: "Apply your JavaScript knowledge by building a complete interactive web application.",
-          skills: ["Project Planning", "Application Architecture", "Debugging", "Performance Optimization"],
-          resources: [
-            {
-              title: "JavaScript Project Structure Best Practices",
-              url: "https://github.com/elsewhencode/project-guidelines",
-              type: "article",
-              description: "Guidelines for structuring JavaScript projects."
-            },
-            {
-              title: "Building a JavaScript Application From Scratch",
-              url: "https://www.udemy.com/course/javascript-web-projects/",
-              type: "course",
-              description: "Step-by-step guide to building complete web applications."
-            },
-            {
-              title: "JavaScript Debugging Techniques",
-              url: "https://www.youtube.com/watch?v=H0XScE08hy8",
-              type: "video",
-              description: "Essential debugging strategies for JavaScript developers."
-            }
-          ],
-          videoSuggestions: [
-            {
-              title: "Build 15 JavaScript Projects - Vanilla JavaScript Course",
-              url: "https://www.youtube.com/watch?v=3PHXvlpOkf4",
-              thumbnail: "https://i.ytimg.com/vi/3PHXvlpOkf4/mqdefault.jpg",
-              duration: "8:18:29",
-              source: "freeCodeCamp.org"
-            },
-            {
-              title: "How to Plan a JavaScript Project",
-              url: "https://www.youtube.com/watch?v=lGnG-yrWQvk",
-              thumbnail: "https://i.ytimg.com/vi/lGnG-yrWQvk/mqdefault.jpg",
-              duration: "14:37",
-              source: "Coding Garden"
-            }
-          ],
-          exercises: [
-            {
-              title: "Project Wireframing",
-              description: "Create a detailed plan and wireframe for your web application.",
-              difficulty: "easy"
-            },
-            {
-              title: "Basic Application Setup",
-              description: "Set up the project structure and implement core functionality.",
-              difficulty: "medium"
-            },
-            {
-              title: "Complete Interactive Application",
-              description: "Finish your application with all planned features and polish the user experience.",
-              difficulty: "hard"
-            }
-          ],
-          notes: [],
-          estimatedTime: "4-6 weeks"
-        }
-      ];
-    } else {
-      // Advanced JavaScript milestones
-      milestones = [
-        {
-          title: "Advanced JavaScript Concepts",
-          description: "Deepen your understanding of JavaScript with advanced concepts like closures, prototypes, and the this keyword.",
-          skills: ["Closures", "Prototypes", "This Keyword", "Execution Context"],
-          resources: [
-            {
-              title: "Advanced JavaScript Concepts - MDN",
-              url: "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Closures",
-              type: "documentation",
-              description: "In-depth documentation on advanced JavaScript concepts."
-            },
-            {
-              title: "JavaScript: Understanding the Weird Parts",
-              url: "https://www.udemy.com/course/understand-javascript/",
-              type: "course",
-              description: "Detailed course on JavaScript's most complex features."
-            },
-            {
-              title: "JavaScript: The Hard Parts",
-              url: "https://frontendmasters.com/courses/javascript-hard-parts/",
-              type: "video",
-              description: "Deep dive into challenging JavaScript concepts."
-            }
-          ],
-          videoSuggestions: [
-            {
-              title: "JavaScript: The Advanced Concepts (2023)",
-              url: "https://www.youtube.com/watch?v=R9I85RhI7Cg",
-              thumbnail: "https://i.ytimg.com/vi/R9I85RhI7Cg/mqdefault.jpg",
-              duration: "30:22:07",
-              source: "Zero To Mastery"
-            },
-            {
-              title: "JavaScript Under The Hood",
-              url: "https://www.youtube.com/watch?v=8aGhZQkoFbQ",
-              thumbnail: "https://i.ytimg.com/vi/8aGhZQkoFbQ/mqdefault.jpg",
-              duration: "26:52",
-              source: "JSConf"
-            }
-          ],
-          exercises: [
-            {
-              title: "Closure Implementations",
-              description: "Create practical examples demonstrating closures and their uses.",
-              difficulty: "medium"
-            },
-            {
-              title: "Prototype Chain Exploration",
-              description: "Build a complex inheritance system using prototypes.",
-              difficulty: "hard"
-            },
-            {
-              title: "Context Binding Challenges",
-              description: "Practice managing 'this' context in various scenarios.",
-              difficulty: "hard"
-            }
-          ],
-          notes: [],
-          estimatedTime: "3-4 weeks"
-        },
-        // More advanced milestones would follow
-      ];
-    }
+    return generateJavaScriptMilestones(skillLevel);
   } else if (language === "Python") {
-    if (currentSkill <= 2) {
-      milestones = [
-        {
-          title: "Python Fundamentals",
-          description: "Learn the core Python syntax, data types, and basic operations.",
-          skills: ["Variables", "Data Types", "Control Flow", "Functions", "Lists and Dictionaries"],
-          resources: [
-            {
-              title: "Python Official Tutorial",
-              url: "https://docs.python.org/3/tutorial/",
-              type: "documentation",
-              description: "The official Python tutorial covering all the basics."
-            },
-            {
-              title: "Python for Everybody - Coursera",
-              url: "https://www.coursera.org/specializations/python",
-              type: "course",
-              description: "Popular beginner-friendly Python course series."
-            },
-            {
-              title: "Python Crash Course For Beginners",
-              url: "https://www.youtube.com/watch?v=JJmcL1N2KQs",
-              type: "video",
-              description: "Comprehensive overview of Python fundamentals."
-            }
-          ],
-          videoSuggestions: [
-            {
-              title: "Python for Beginners - Learn Python in 1 Hour",
-              url: "https://www.youtube.com/watch?v=kqtD5dpn9C8",
-              thumbnail: "https://i.ytimg.com/vi/kqtD5dpn9C8/mqdefault.jpg",
-              duration: "1:00:27",
-              source: "Programming with Mosh"
-            },
-            {
-              title: "Learn Python - Full Course for Beginners",
-              url: "https://www.youtube.com/watch?v=rfscVS0vtbw",
-              thumbnail: "https://i.ytimg.com/vi/rfscVS0vtbw/mqdefault.jpg",
-              duration: "4:26:51",
-              source: "freeCodeCamp.org"
-            }
-          ],
-          exercises: [
-            {
-              title: "Python Calculator",
-              description: "Build a simple calculator using basic Python operations.",
-              difficulty: "easy"
-            },
-            {
-              title: "List Manipulation",
-              description: "Practice creating and manipulating lists with various methods.",
-              difficulty: "easy"
-            },
-            {
-              title: "Dictionary Data Storage",
-              description: "Create a program that stores and retrieves data using dictionaries.",
-              difficulty: "medium"
-            }
-          ],
-          notes: [],
-          estimatedTime: "2-3 weeks"
-        },
-        // More Python milestones would follow
-      ];
-    }
-    // More advanced Python milestones would go here
+    return generatePythonMilestones(skillLevel);
+  } else if (language === "React") {
+    return generateReactMilestones(skillLevel);
+  } else if (language === "Java") {
+    return generateJavaMilestones(skillLevel);
   } else {
     // Generic milestones for other languages
-    if (currentSkill <= 2) {
-      milestones = [
-        {
-          title: `${language} Fundamentals`,
-          description: `Learn the basic syntax and concepts of ${language}.`,
-          skills: ["Core Syntax", "Basic Operations", "Control Structures", "Functions"],
-          resources: [
-            {
-              title: `${language} Official Documentation`,
-              url: "#",
-              type: "documentation",
-              description: `The official reference for ${language} programming.`
-            },
-            {
-              title: `${language} Beginner Course`,
-              url: "#",
-              type: "course",
-              description: `Comprehensive introduction to ${language}.`
-            },
-            {
-              title: `${language} Crash Course`,
-              url: "#",
-              type: "video",
-              description: `Quick introduction to ${language} fundamentals.`
-            }
-          ],
-          videoSuggestions: [
-            {
-              title: `${language} Programming Course for Beginners`,
-              url: "#",
-              thumbnail: "",
-              duration: "1:30:00",
-              source: "Learning Platform"
-            },
-            {
-              title: `${language} Tutorial: Basic Concepts`,
-              url: "#",
-              thumbnail: "",
-              duration: "45:22",
-              source: "Programming Mentor"
-            }
-          ],
-          exercises: [
-            {
-              title: "Syntax Practice",
-              description: `Write basic programs using ${language} syntax.`,
-              difficulty: "easy"
-            },
-            {
-              title: "Logic Implementation",
-              description: `Implement simple algorithms in ${language}.`,
-              difficulty: "medium"
-            },
-            {
-              title: "Function Workshop",
-              description: `Create reusable functions to solve various problems.`,
-              difficulty: "medium"
-            }
-          ],
-          notes: [],
-          estimatedTime: "2-3 weeks"
-        },
-        // More generic milestones would follow
-      ];
-    }
-    // More advanced generic milestones would go here
+    return generateGenericMilestones(language, skillLevel);
   }
-  
-  // For demo purposes, ensure we have at least 4 milestones
-  while (milestones.length < 4) {
-    const index = milestones.length + 1;
-    milestones.push({
-      title: `${language} Advanced Topic ${index}`,
-      description: `Explore advanced concepts and techniques in ${language}.`,
-      skills: ["Advanced Concept 1", "Advanced Concept 2", "Advanced Concept 3"],
-      resources: [
-        {
-          title: `${language} Advanced Documentation`,
-          url: "#",
-          type: "documentation",
-          description: `Detailed guide on advanced ${language} features.`
-        },
-        {
-          title: `Advanced ${language} Course`,
-          url: "#",
-          type: "course",
-          description: `In-depth course on ${language} mastery.`
-        },
-        {
-          title: `${language} Deep Dive`,
-          url: "#",
-          type: "video",
-          description: `Detailed video series on advanced ${language} topics.`
-        }
-      ],
-      videoSuggestions: [
-        {
-          title: `Advanced ${language} Techniques`,
-          url: "#",
-          thumbnail: "",
-          duration: "1:15:00",
-          source: "Expert Academy"
-        },
-        {
-          title: `${language} Performance Optimization`,
-          url: "#",
-          thumbnail: "",
-          duration: "52:18",
-          source: "Pro Coder Channel"
-        }
-      ],
-      exercises: [
-        {
-          title: "Advanced Challenge 1",
-          description: `Apply advanced ${language} concepts to solve a complex problem.`,
-          difficulty: "medium"
-        },
-        {
-          title: "Advanced Project",
-          description: `Build a sophisticated application using ${language}.`,
-          difficulty: "hard"
-        }
-      ],
-      notes: [],
-      estimatedTime: "3-4 weeks"
+}
+
+function adaptMilestonesToLearningStyle(milestones: any[], learningStyle: string): void {
+  milestones.forEach(milestone => {
+    // Adjust resources based on learning style
+    if (learningStyle === "visual") {
+      // Add more video content
+      expandVideoSuggestions(milestone);
+      // Ensure each milestone has video resources
+      if (!milestone.videoSuggestions) {
+        milestone.videoSuggestions = generateVideoSuggestions(2, milestone.title);
+      }
+    } else if (learningStyle === "reading") {
+      // Add more text-based resources
+      milestone.resources = milestone.resources.filter(r => r.type !== "video").concat(
+        generateReadingResources(2, milestone.title)
+      );
+    } else if (learningStyle === "interactive") {
+      // Add more exercises
+      milestone.exercises = milestone.exercises.concat(
+        generateInteractiveExercises(1, milestone.title)
+      );
+    }
+    
+    // Make sure each milestone has at least sample notes
+    if (!milestone.notes) {
+      milestone.notes = [];
+    }
+    
+    // Add sample notes if there are none
+    if (milestone.notes.length === 0) {
+      milestone.notes = generateSampleNotes(milestone.title);
+    }
+  });
+}
+
+function adaptMilestonesToTimeCommitment(milestones: any[], timeCommitment: string): void {
+  // Adjust milestone scope based on time commitment
+  if (timeCommitment === "1-3 hours/week") {
+    // Simplify milestones for limited time
+    milestones.forEach(milestone => {
+      milestone.exercises = milestone.exercises.slice(0, Math.max(1, milestone.exercises.length - 1));
+      milestone.estimatedTime = adjustEstimatedTime(milestone.estimatedTime, 0.7); // Reduce time by 30%
+    });
+  } else if (timeCommitment === "7+ hours/week") {
+    // Expand milestones for more time
+    milestones.forEach(milestone => {
+      if (milestone.exercises.length < 4) {
+        milestone.exercises.push(...generateInteractiveExercises(1, milestone.title));
+      }
+      milestone.estimatedTime = adjustEstimatedTime(milestone.estimatedTime, 1.3); // Increase time by 30%
     });
   }
+}
+
+function generateJavaScriptMilestones(skillLevel: number): any[] {
+  if (skillLevel <= 2) {
+    // Beginner JavaScript milestones
+    return [
+      {
+        title: "JavaScript Fundamentals",
+        description: "Learn the core concepts of JavaScript including variables, data types, operators, and control flow.",
+        skills: ["Variables", "Data Types", "Operators", "Control Flow", "Functions"],
+        resources: [
+          {
+            title: "JavaScript Basics - MDN Web Docs",
+            url: "https://developer.mozilla.org/en-US/docs/Learn/JavaScript/First_steps",
+            type: "documentation",
+            description: "Official Mozilla documentation on JavaScript basics."
+          },
+          {
+            title: "JavaScript Fundamentals - The Odin Project",
+            url: "https://www.theodinproject.com/paths/full-stack-javascript/courses/javascript",
+            type: "course",
+            description: "Free, comprehensive JavaScript fundamentals course."
+          },
+          {
+            title: "JavaScript Crash Course For Beginners",
+            url: "https://www.youtube.com/watch?v=hdI2bqOjy3c",
+            type: "video",
+            description: "A quick overview of JavaScript fundamentals in one video."
+          }
+        ],
+        videoSuggestions: [
+          {
+            title: "JavaScript Fundamentals for Beginners",
+            url: "https://www.youtube.com/watch?v=W6NZfCO5SIk",
+            thumbnail: "https://i.ytimg.com/vi/W6NZfCO5SIk/mqdefault.jpg",
+            duration: "48:17",
+            source: "Programming with Mosh"
+          },
+          {
+            title: "JavaScript Tutorial for Beginners: Learn JavaScript in 1 Hour",
+            url: "https://www.youtube.com/watch?v=W6NZfCO5SIk",
+            thumbnail: "https://i.ytimg.com/vi/W6NZfCO5SIk/mqdefault.jpg",
+            duration: "1:18:56",
+            source: "Programming with Mosh"
+          }
+        ],
+        exercises: [
+          {
+            title: "Variable and Data Type Practice",
+            description: "Create variables of each type and practice converting between types.",
+            difficulty: "easy"
+          },
+          {
+            title: "Control Flow Challenge",
+            description: "Write programs using if/else statements and loops to solve simple problems.",
+            difficulty: "easy"
+          },
+          {
+            title: "Function Builder",
+            description: "Create functions with parameters and return values to perform specific tasks.",
+            difficulty: "medium"
+          }
+        ],
+        notes: [
+          {
+            id: "note-1",
+            content: "Remember to use 'const' for variables that won't change, and 'let' for variables that will.",
+            createdAt: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000) // 7 days ago
+          },
+          {
+            id: "note-2",
+            content: "JavaScript is loosely typed - variables can change types during execution. Be careful with this!",
+            createdAt: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000) // 3 days ago
+          }
+        ],
+        estimatedTime: "2-3 weeks"
+      },
+      // ... keep existing code (remaining JavaScript milestones)
+    ];
+  } else {
+    // Advanced JavaScript milestones
+    // ... keep existing code (Advanced JavaScript milestones)
+    return [
+      {
+        title: "Advanced JavaScript Concepts",
+        description: "Deepen your understanding of JavaScript with advanced concepts like closures, prototypes, and the this keyword.",
+        skills: ["Closures", "Prototypes", "This Keyword", "Execution Context"],
+        resources: [
+          {
+            title: "Advanced JavaScript Concepts - MDN",
+            url: "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Closures",
+            type: "documentation",
+            description: "In-depth documentation on advanced JavaScript concepts."
+          },
+          {
+            title: "JavaScript: Understanding the Weird Parts",
+            url: "https://www.udemy.com/course/understand-javascript/",
+            type: "course",
+            description: "Detailed course on JavaScript's most complex features."
+          },
+          {
+            title: "JavaScript: The Hard Parts",
+            url: "https://frontendmasters.com/courses/javascript-hard-parts/",
+            type: "video",
+            description: "Deep dive into challenging JavaScript concepts."
+          }
+        ],
+        videoSuggestions: [
+          {
+            title: "JavaScript: The Advanced Concepts (2023)",
+            url: "https://www.youtube.com/watch?v=R9I85RhI7Cg",
+            thumbnail: "https://i.ytimg.com/vi/R9I85RhI7Cg/mqdefault.jpg",
+            duration: "30:22:07",
+            source: "Zero To Mastery"
+          },
+          {
+            title: "JavaScript Under The Hood",
+            url: "https://www.youtube.com/watch?v=8aGhZQkoFbQ",
+            thumbnail: "https://i.ytimg.com/vi/8aGhZQkoFbQ/mqdefault.jpg",
+            duration: "26:52",
+            source: "JSConf"
+          },
+          {
+            title: "Closures in JavaScript: A Complete Guide",
+            url: "https://www.youtube.com/watch?v=vKJpN5FAeF4",
+            thumbnail: "https://i.ytimg.com/vi/vKJpN5FAeF4/mqdefault.jpg",
+            duration: "22:16",
+            source: "Web Dev Simplified"
+          }
+        ],
+        exercises: [
+          {
+            title: "Closure Implementations",
+            description: "Create practical examples demonstrating closures and their uses.",
+            difficulty: "medium"
+          },
+          {
+            title: "Prototype Chain Exploration",
+            description: "Build a complex inheritance system using prototypes.",
+            difficulty: "hard"
+          },
+          {
+            title: "Context Binding Challenges",
+            description: "Practice managing 'this' context in various scenarios.",
+            difficulty: "hard"
+          }
+        ],
+        notes: [
+          {
+            id: "note-1",
+            content: "The 'this' keyword behavior changes based on how a function is called. In arrow functions, 'this' is lexically bound.",
+            createdAt: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000)
+          },
+          {
+            id: "note-2",
+            content: "Closures are functions that remember their lexical environment. They're useful for data encapsulation and creating private variables.",
+            createdAt: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000)
+          }
+        ],
+        estimatedTime: "3-4 weeks"
+      },
+      {
+        title: "Modern JavaScript Development",
+        description: "Master the modern JavaScript ecosystem including ES6+ features, modules, and build tools.",
+        skills: ["ES6+ Features", "Modules", "Async/Await", "Babel", "Webpack"],
+        resources: [
+          {
+            title: "Modern JavaScript Features - MDN",
+            url: "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide",
+            type: "documentation",
+            description: "Guide to modern JavaScript features and best practices."
+          },
+          {
+            title: "JavaScript Modules - A Complete Guide",
+            url: "https://www.freecodecamp.org/news/javascript-modules-a-beginner-s-guide-783f7d7a5fcc/",
+            type: "article",
+            description: "Comprehensive guide to JavaScript modules."
+          }
+        ],
+        videoSuggestions: [
+          {
+            title: "ES6 Tutorial: Learn Modern JavaScript",
+            url: "https://www.youtube.com/watch?v=NCwa_xi0Uuc",
+            thumbnail: "https://i.ytimg.com/vi/NCwa_xi0Uuc/mqdefault.jpg",
+            duration: "1:13:42",
+            source: "freeCodeCamp.org"
+          },
+          {
+            title: "Webpack Crash Course",
+            url: "https://www.youtube.com/watch?v=MpGLUVbqoYQ",
+            thumbnail: "https://i.ytimg.com/vi/MpGLUVbqoYQ/mqdefault.jpg",
+            duration: "38:55",
+            source: "Traversy Media"
+          }
+        ],
+        exercises: [
+          {
+            title: "ES6 Feature Implementation",
+            description: "Refactor legacy JavaScript code using modern ES6+ features.",
+            difficulty: "medium"
+          },
+          {
+            title: "Module Bundler Setup",
+            description: "Set up a complete build system using Webpack and Babel.",
+            difficulty: "hard"
+          }
+        ],
+        notes: [
+          {
+            id: "note-1",
+            content: "ES6 introduced many features that make JavaScript more powerful and expressive: arrow functions, destructuring, spread operator, and more.",
+            createdAt: new Date(Date.now() - 8 * 24 * 60 * 60 * 1000)
+          }
+        ],
+        estimatedTime: "2-3 weeks"
+      }
+    ];
+  }
+}
+
+function generatePythonMilestones(skillLevel: number): any[] {
+  if (skillLevel <= 2) {
+    // Beginner Python milestones
+    return [
+      {
+        title: "Python Fundamentals",
+        description: "Learn the core Python syntax, data types, and basic operations.",
+        skills: ["Variables", "Data Types", "Control Flow", "Functions", "Lists and Dictionaries"],
+        resources: [
+          {
+            title: "Python Official Tutorial",
+            url: "https://docs.python.org/3/tutorial/",
+            type: "documentation",
+            description: "The official Python tutorial covering all the basics."
+          },
+          {
+            title: "Python for Everybody - Coursera",
+            url: "https://www.coursera.org/specializations/python",
+            type: "course",
+            description: "Popular beginner-friendly Python course series."
+          },
+          {
+            title: "Python Crash Course For Beginners",
+            url: "https://www.youtube.com/watch?v=JJmcL1N2KQs",
+            type: "video",
+            description: "Comprehensive overview of Python fundamentals."
+          }
+        ],
+        videoSuggestions: [
+          {
+            title: "Python for Beginners - Learn Python in 1 Hour",
+            url: "https://www.youtube.com/watch?v=kqtD5dpn9C8",
+            thumbnail: "https://i.ytimg.com/vi/kqtD5dpn9C8/mqdefault.jpg",
+            duration: "1:00:27",
+            source: "Programming with Mosh"
+          },
+          {
+            title: "Learn Python - Full Course for Beginners",
+            url: "https://www.youtube.com/watch?v=rfscVS0vtbw",
+            thumbnail: "https://i.ytimg.com/vi/rfscVS0vtbw/mqdefault.jpg",
+            duration: "4:26:51",
+            source: "freeCodeCamp.org"
+          }
+        ],
+        exercises: [
+          {
+            title: "Python Calculator",
+            description: "Build a simple calculator using basic Python operations.",
+            difficulty: "easy"
+          },
+          {
+            title: "List Manipulation",
+            description: "Practice creating and manipulating lists with various methods.",
+            difficulty: "easy"
+          },
+          {
+            title: "Dictionary Data Storage",
+            description: "Create a program that stores and retrieves data using dictionaries.",
+            difficulty: "medium"
+          }
+        ],
+        notes: [
+          {
+            id: "note-1",
+            content: "Python uses indentation for code blocks, not curly braces like many other languages. This makes the code more readable but requires careful attention to spacing.",
+            createdAt: new Date(Date.now() - 6 * 24 * 60 * 60 * 1000)
+          }
+        ],
+        estimatedTime: "2-3 weeks"
+      },
+      {
+        title: "Python Data Structures",
+        description: "Master Python's built-in data structures and when to use each one.",
+        skills: ["Lists", "Tuples", "Sets", "Dictionaries", "Comprehensions"],
+        resources: [
+          {
+            title: "Python Data Structures - Real Python",
+            url: "https://realpython.com/python-data-structures/",
+            type: "article",
+            description: "In-depth guide to Python data structures."
+          }
+        ],
+        videoSuggestions: [
+          {
+            title: "Python Data Structures Tutorial",
+            url: "https://www.youtube.com/watch?v=R-HLU9Fl5ug",
+            thumbnail: "https://i.ytimg.com/vi/R-HLU9Fl5ug/mqdefault.jpg",
+            duration: "1:51:09",
+            source: "freeCodeCamp.org"
+          }
+        ],
+        exercises: [
+          {
+            title: "Data Structure Selection",
+            description: "Solve problems by selecting the appropriate data structure.",
+            difficulty: "medium"
+          }
+        ],
+        notes: [],
+        estimatedTime: "2 weeks"
+      }
+    ];
+  } else {
+    // Advanced Python milestones
+    return [
+      {
+        title: "Advanced Python Concepts",
+        description: "Deepen your understanding with advanced Python features like decorators, generators, and context managers.",
+        skills: ["Decorators", "Generators", "Context Managers", "Metaclasses"],
+        resources: [
+          {
+            title: "Advanced Python - Real Python",
+            url: "https://realpython.com/tutorials/advanced/",
+            type: "article",
+            description: "Collection of advanced Python articles and tutorials."
+          }
+        ],
+        videoSuggestions: [
+          {
+            title: "Advanced Python - Decorators, Generators, and Context Managers",
+            url: "https://www.youtube.com/watch?v=WOHystYwByE",
+            thumbnail: "https://i.ytimg.com/vi/WOHystYwByE/mqdefault.jpg",
+            duration: "1:30:52",
+            source: "Tech With Tim"
+          }
+        ],
+        exercises: [
+          {
+            title: "Custom Decorator",
+            description: "Create decorators to add functionality to existing functions.",
+            difficulty: "hard"
+          }
+        ],
+        notes: [],
+        estimatedTime: "3-4 weeks"
+      }
+    ];
+  }
+}
+
+function generateReactMilestones(skillLevel: number): any[] {
+  // React milestones based on skill level
+  if (skillLevel <= 2) {
+    return [
+      {
+        title: "React Fundamentals",
+        description: "Learn the core concepts of React including components, props, and state.",
+        skills: ["Components", "JSX", "Props", "State", "Hooks"],
+        resources: [
+          {
+            title: "React Official Documentation",
+            url: "https://reactjs.org/docs/getting-started.html",
+            type: "documentation",
+            description: "The official React documentation."
+          }
+        ],
+        videoSuggestions: [
+          {
+            title: "React Course For Beginners",
+            url: "https://www.youtube.com/watch?v=bMknfKXIFA8",
+            thumbnail: "https://i.ytimg.com/vi/bMknfKXIFA8/mqdefault.jpg",
+            duration: "11:55:27",
+            source: "freeCodeCamp.org"
+          }
+        ],
+        exercises: [
+          {
+            title: "Component Creation",
+            description: "Create reusable React components with props.",
+            difficulty: "easy"
+          }
+        ],
+        notes: [],
+        estimatedTime: "3-4 weeks"
+      }
+    ];
+  } else {
+    return [
+      {
+        title: "Advanced React Patterns",
+        description: "Master advanced React patterns and optimizations.",
+        skills: ["Context API", "Render Props", "HOCs", "Performance", "Suspense"],
+        resources: [
+          {
+            title: "Advanced React Patterns",
+            url: "https://kentcdodds.com/blog/advanced-react-patterns",
+            type: "article",
+            description: "Guide to advanced React patterns."
+          }
+        ],
+        videoSuggestions: [
+          {
+            title: "Advanced React Hooks",
+            url: "https://www.youtube.com/watch?v=YKmiLcXiMMo",
+            thumbnail: "https://i.ytimg.com/vi/YKmiLcXiMMo/mqdefault.jpg",
+            duration: "1:29:43",
+            source: "Ben Awad"
+          }
+        ],
+        exercises: [
+          {
+            title: "Custom Hook Creation",
+            description: "Create reusable custom hooks for common functionality.",
+            difficulty: "hard"
+          }
+        ],
+        notes: [],
+        estimatedTime: "4 weeks"
+      }
+    ];
+  }
+}
+
+function generateJavaMilestones(skillLevel: number): any[] {
+  // Java milestones based on skill level
+  if (skillLevel <= 2) {
+    return [
+      {
+        title: "Java Fundamentals",
+        description: "Learn the core concepts of Java including classes, objects, and inheritance.",
+        skills: ["Classes", "Objects", "Methods", "Inheritance", "Polymorphism"],
+        resources: [
+          {
+            title: "Java Tutorials - Oracle",
+            url: "https://docs.oracle.com/javase/tutorial/",
+            type: "documentation",
+            description: "Official Java tutorials from Oracle."
+          }
+        ],
+        videoSuggestions: [
+          {
+            title: "Java Tutorial for Beginners",
+            url: "https://www.youtube.com/watch?v=eIrMbAQSU34",
+            thumbnail: "https://i.ytimg.com/vi/eIrMbAQSU34/mqdefault.jpg",
+            duration: "2:30:29",
+            source: "Programming with Mosh"
+          }
+        ],
+        exercises: [
+          {
+            title: "Object-Oriented Design",
+            description: "Design classes and objects to model a system.",
+            difficulty: "medium"
+          }
+        ],
+        notes: [],
+        estimatedTime: "4 weeks"
+      }
+    ];
+  } else {
+    return [
+      {
+        title: "Advanced Java Development",
+        description: "Master advanced Java topics like concurrency, streams, and reflection.",
+        skills: ["Concurrency", "Streams API", "Reflection", "JVM Internals"],
+        resources: [
+          {
+            title: "Java Concurrency in Practice",
+            url: "https://jcip.net/",
+            type: "book",
+            description: "Comprehensive book on Java concurrency."
+          }
+        ],
+        videoSuggestions: [
+          {
+            title: "Advanced Java Programming",
+            url: "https://www.youtube.com/watch?v=Ae-r8hsbPUo",
+            thumbnail: "https://i.ytimg.com/vi/Ae-r8hsbPUo/mqdefault.jpg",
+            duration: "2:56:03",
+            source: "Amigoscode"
+          }
+        ],
+        exercises: [
+          {
+            title: "Thread-Safe Application",
+            description: "Build a multi-threaded application with proper synchronization.",
+            difficulty: "hard"
+          }
+        ],
+        notes: [],
+        estimatedTime: "5 weeks"
+      }
+    ];
+  }
+}
+
+function generateGenericMilestones(language: string, skillLevel: number): any[] {
+  // Generic milestones for any language based on skill level
+  if (skillLevel <= 2) {
+    return [
+      {
+        title: `${language} Fundamentals`,
+        description: `Learn the basic syntax and concepts of ${language}.`,
+        skills: ["Core Syntax", "Basic Operations", "Control Structures", "Functions"],
+        resources: [
+          {
+            title: `${language} Official Documentation`,
+            url: "#",
+            type: "documentation",
+            description: `The official reference for ${language} programming.`
+          }
+        ],
+        videoSuggestions: [
+          {
+            title: `${language} Programming Course for Beginners`,
+            url: "#",
+            thumbnail: "",
+            duration: "1:30:00",
+            source: "Learning Platform"
+          }
+        ],
+        exercises: [
+          {
+            title: "Syntax Practice",
+            description: `Write basic programs using ${language} syntax.`,
+            difficulty: "easy"
+          }
+        ],
+        notes: [],
+        estimatedTime: "2-3 weeks"
+      },
+      {
+        title: `${language} Data Structures`,
+        description: `Learn common data structures in ${language}.`,
+        skills: ["Arrays", "Lists", "Maps", "Sets"],
+        resources: [
+          {
+            title: `${language} Data Structures Tutorial`,
+            url: "#",
+            type: "documentation",
+            description: `Guide to data structures in ${language}.`
+          }
+        ],
+        videoSuggestions: [
+          {
+            title: `${language} Data Structures Explained`,
+            url: "#",
+            thumbnail: "",
+            duration: "52:18",
+            source: "Programming Tutorials"
+          }
+        ],
+        exercises: [
+          {
+            title: "Data Structure Implementation",
+            description: `Implement basic data structures in ${language}.`,
+            difficulty: "medium"
+          }
+        ],
+        notes: [],
+        estimatedTime: "2 weeks"
+      }
+    ];
+  } else {
+    return [
+      {
+        title: `Advanced ${language}`,
+        description: `Master advanced ${language} features and best practices.`,
+        skills: ["Advanced Concepts", "Performance Optimization", "Design Patterns"],
+        resources: [
+          {
+            title: `Advanced ${language} Programming`,
+            url: "#",
+            type: "documentation",
+            description: `Deep dive into advanced ${language} features.`
+          }
+        ],
+        videoSuggestions: [
+          {
+            title: `Advanced ${language} Techniques`,
+            url: "#",
+            thumbnail: "",
+            duration: "1:42:37",
+            source: "Expert Tutorials"
+          }
+        ],
+        exercises: [
+          {
+            title: "Advanced Framework Project",
+            description: `Build a complete application using ${language}.`,
+            difficulty: "hard"
+          }
+        ],
+        notes: [],
+        estimatedTime: "4 weeks"
+      },
+      {
+        title: `${language} Ecosystem`,
+        description: `Explore the broader ${language} ecosystem and tools.`,
+        skills: ["Frameworks", "Libraries", "Tools", "Best Practices"],
+        resources: [
+          {
+            title: `${language} Ecosystem Guide`,
+            url: "#",
+            type: "article",
+            description: `Overview of the ${language} ecosystem.`
+          }
+        ],
+        videoSuggestions: [
+          {
+            title: `Modern ${language} Development`,
+            url: "#",
+            thumbnail: "",
+            duration: "1:15:44",
+            source: "Professional Developers"
+          }
+        ],
+        exercises: [
+          {
+            title: "Full Stack Project",
+            description: `Build a complete application using ${language} and related technologies.`,
+            difficulty: "hard"
+          }
+        ],
+        notes: [],
+        estimatedTime: "5 weeks"
+      }
+    ];
+  }
+}
+
+// Helper functions for generating content
+
+function expandVideoSuggestions(milestone: any): void {
+  if (!milestone.videoSuggestions) {
+    milestone.videoSuggestions = [];
+  }
   
-  return milestones;
+  // Add additional video suggestions based on milestone title
+  const additionalVideos = generateVideoSuggestions(2, milestone.title);
+  milestone.videoSuggestions = [...milestone.videoSuggestions, ...additionalVideos];
+}
+
+function generateVideoSuggestions(count: number, topic: string): any[] {
+  const videoTopics = [
+    "Beginner Tutorial",
+    "Complete Guide",
+    "Crash Course",
+    "Practical Examples",
+    "Deep Dive",
+    "Quick Reference",
+    "Best Practices",
+    "Common Mistakes"
+  ];
+  
+  const sources = [
+    "freeCodeCamp.org",
+    "Traversy Media",
+    "Programming with Mosh",
+    "Web Dev Simplified",
+    "Academind",
+    "The Net Ninja",
+    "Coding Train",
+    "CS Dojo"
+  ];
+  
+  const durations = [
+    "10:27",
+    "22:45",
+    "45:18",
+    "1:12:39",
+    "28:53",
+    "16:42",
+    "53:21",
+    "2:04:17"
+  ];
+  
+  return Array.from({ length: count }, (_, i) => {
+    const videoTopic = videoTopics[Math.floor(Math.random() * videoTopics.length)];
+    const source = sources[Math.floor(Math.random() * sources.length)];
+    const duration = durations[Math.floor(Math.random() * durations.length)];
+    
+    return {
+      title: `${topic} ${videoTopic}`,
+      url: "#",
+      thumbnail: `https://picsum.photos/seed/${topic.replace(/\s+/g, "")}${i}/320/180`,
+      duration: duration,
+      source: source
+    };
+  });
+}
+
+function generateReadingResources(count: number, topic: string): any[] {
+  const resourceTypes = ["article", "documentation", "book"];
+  const resourceDescriptions = [
+    "Comprehensive guide to",
+    "Quick overview of",
+    "In-depth explanation of",
+    "Beginner-friendly introduction to",
+    "Advanced tutorial on"
+  ];
+  
+  return Array.from({ length: count }, () => {
+    const type = resourceTypes[Math.floor(Math.random() * resourceTypes.length)];
+    const description = resourceDescriptions[Math.floor(Math.random() * resourceDescriptions.length)];
+    
+    return {
+      title: `${topic} Guide`,
+      url: "#",
+      type: type,
+      description: `${description} ${topic}.`
+    };
+  });
+}
+
+function generateInteractiveExercises(count: number, topic: string): any[] {
+  const difficulties = ["easy", "medium", "hard"];
+  const exercisePrefixes = [
+    "Build a",
+    "Implement a",
+    "Create a",
+    "Develop a",
+    "Design a"
+  ];
+  
+  return Array.from({ length: count }, () => {
+    const difficulty = difficulties[Math.floor(Math.random() * difficulties.length)];
+    const prefix = exercisePrefixes[Math.floor(Math.random() * exercisePrefixes.length)];
+    
+    return {
+      title: `${topic} Practice Project`,
+      description: `${prefix} simple application to practice ${topic} concepts.`,
+      difficulty: difficulty
+    };
+  });
+}
+
+function generateSampleNotes(topic: string): any[] {
+  const noteContents = [
+    `Remember to practice ${topic} concepts regularly to reinforce learning.`,
+    `Found a great resource for ${topic}: check the official documentation for examples.`,
+    `Key insight for ${topic}: focus on understanding the core principles before diving into complex cases.`
+  ];
+  
+  return noteContents.map((content, index) => ({
+    id: `note-${Date.now() + index}`,
+    content: content,
+    createdAt: new Date(Date.now() - (Math.random() * 10) * 24 * 60 * 60 * 1000) // Random date within the last 10 days
+  }));
+}
+
+function adjustEstimatedTime(timeString: string, factor: number): string {
+  // Parse the time string (e.g., "2-3 weeks" -> [2, 3, "weeks"])
+  const match = timeString.match(/(\d+)-(\d+)\s+(\w+)/);
+  if (match) {
+    const minTime = Math.round(parseInt(match[1]) * factor);
+    const maxTime = Math.round(parseInt(match[2]) * factor);
+    return `${minTime}-${maxTime} ${match[3]}`;
+  }
+  return timeString;
 }

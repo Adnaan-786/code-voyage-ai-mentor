@@ -344,39 +344,165 @@ const Roadmap = ({ data, userName, languageName }: RoadmapProps) => {
   );
 };
 
-// This function would normally generate a real SVG based on the roadmap data
-// For now, we're using a mockup SVG for demonstration purposes
+// This function generates a modern SVG flowchart based on the roadmap data
 function generateMockupFlowchart(data: RoadmapData): string {
-  // ... keep existing code (generateMockupFlowchart implementation)
-  return `
-  <svg width="800" height="${Math.max(120 + data.milestones.length * 100, 400)}" xmlns="http://www.w3.org/2000/svg">
+  const milestones = data.milestones;
+  const height = Math.max(150 + milestones.length * 120, 500);
+  
+  // Define colors for a modern looking chart
+  const colors = {
+    background: "#f8fafc",
+    startNode: {
+      fill: "#eff6ff",
+      stroke: "#3b82f6",
+      text: "#1e40af"
+    },
+    milestoneNode: {
+      fill: "#f0f9ff",
+      stroke: "#0ea5e9",
+      text: "#0c4a6e"
+    },
+    endNode: {
+      fill: "#ecfdf5",
+      stroke: "#10b981",
+      text: "#065f46"
+    },
+    connectionLine: "#6366f1",
+    shadow: "0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1)"
+  };
+  
+  // SVG defs with modern markers and filters
+  const defs = `
     <defs>
       <marker id="arrowhead" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
-        <polygon points="0 0, 10 3.5, 0 7" fill="#4B7BF5" />
+        <polygon points="0 0, 10 3.5, 0 7" fill="${colors.connectionLine}" />
       </marker>
-    </defs>
-    
-    <!-- Start node -->
-    <rect x="350" y="20" width="100" height="50" rx="8" fill="#EEF2FF" stroke="#818CF8" stroke-width="2" />
-    <text x="400" y="50" text-anchor="middle" font-family="sans-serif" font-size="14" fill="#4F46E5">Start</text>
-    
-    <!-- Path lines -->
-    ${data.milestones.map((_, i) => {
-      const y = 100 + i * 100;
-      return `
-      <line x1="400" y1="${i === 0 ? 70 : y - 30}" x2="400" y2="${y - 10}" stroke="#4B7BF5" stroke-width="2" marker-end="url(#arrowhead)" />
       
-      <!-- Milestone node -->
-      <rect x="250" y="${y}" width="300" height="60" rx="8" fill="#F0F9FF" stroke="#93C5FD" stroke-width="2" />
-      <text x="400" y="${y + 35}" text-anchor="middle" font-family="sans-serif" font-size="14" font-weight="bold" fill="#1E40AF">${data.milestones[i].title}</text>`;
-    }).join('')}
+      <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
+        <feDropShadow dx="0" dy="2" stdDeviation="2" flood-color="rgb(0 0 0 / 0.3)" flood-opacity="0.3" />
+      </filter>
+    </defs>
+  `;
+  
+  // Generate the start node
+  const startNode = `
+    <g filter="url(#shadow)">
+      <rect x="350" y="30" width="120" height="60" rx="12" fill="${colors.startNode.fill}" stroke="${colors.startNode.stroke}" stroke-width="2" />
+      <text x="410" y="65" text-anchor="middle" font-family="Inter, system-ui, sans-serif" font-size="14" font-weight="600" fill="${colors.startNode.text}">
+        Start Learning
+      </text>
+    </g>
+  `;
+  
+  // Generate milestone nodes and connections
+  const milestoneNodes = milestones.map((milestone, i) => {
+    const y = 130 + i * 120;
     
-    <!-- Final node -->
-    <line x1="400" y1="${100 + data.milestones.length * 100 + 10}" x2="400" y2="${100 + data.milestones.length * 100 + 40}" stroke="#4B7BF5" stroke-width="2" marker-end="url(#arrowhead)" />
+    // Calculate skills to display (limit to 3 with ellipsis if more)
+    const displaySkills = milestone.skills.length > 3 
+      ? milestone.skills.slice(0, 3).join(", ") + "..." 
+      : milestone.skills.join(", ");
     
-    <!-- End node -->
-    <rect x="350" y="${100 + data.milestones.length * 100 + 50}" width="100" height="50" rx="8" fill="#ECFDF5" stroke="#6EE7B7" stroke-width="2" />
-    <text x="400" y="${100 + data.milestones.length * 100 + 80}" text-anchor="middle" font-family="sans-serif" font-size="14" fill="#047857">Mastery!</text>
+    // Calculate estimated time to display
+    const timeDisplay = milestone.estimatedTime;
+    
+    // Connection line from previous node
+    const connectionLine = `
+      <line 
+        x1="410" y1="${i === 0 ? 90 : y - 60}" 
+        x2="410" y2="${y - 10}" 
+        stroke="${colors.connectionLine}" 
+        stroke-width="2" 
+        stroke-dasharray="${i % 2 === 0 ? "" : "6,3"}"
+        marker-end="url(#arrowhead)" 
+      />
+    `;
+    
+    // Generate the milestone node
+    const milestoneNode = `
+      <g filter="url(#shadow)">
+        <rect 
+          x="250" y="${y}" 
+          width="320" height="80" 
+          rx="12" 
+          fill="${colors.milestoneNode.fill}" 
+          stroke="${colors.milestoneNode.stroke}" 
+          stroke-width="2" 
+        />
+        <text x="270" y="${y + 30}" font-family="Inter, system-ui, sans-serif" font-size="15" font-weight="600" fill="${colors.milestoneNode.text}">
+          ${milestone.title}
+        </text>
+        <text x="270" y="${y + 50}" font-family="Inter, system-ui, sans-serif" font-size="12" fill="${colors.milestoneNode.text}">
+          Skills: ${displaySkills}
+        </text>
+        <text x="270" y="${y + 70}" font-family="Inter, system-ui, sans-serif" font-size="12" fill="${colors.milestoneNode.text}" opacity="0.8">
+          ${timeDisplay}
+        </text>
+        
+        <!-- Resource count indicator -->
+        <circle cx="530" cy="${y + 30}" r="12" fill="#e0e7ff" stroke="#6366f1" stroke-width="1.5" />
+        <text x="530" y="${y + 34}" text-anchor="middle" font-family="Inter, system-ui, sans-serif" font-size="11" font-weight="600" fill="#4338ca">
+          ${milestone.resources.length}
+        </text>
+        
+        <!-- Video indicator -->
+        ${milestone.videoSuggestions && milestone.videoSuggestions.length > 0 ? `
+          <circle cx="530" cy="${y + 60}" r="12" fill="#fee2e2" stroke="#ef4444" stroke-width="1.5" />
+          <text x="530" y="${y + 64}" text-anchor="middle" font-family="Inter, system-ui, sans-serif" font-size="11" font-weight="600" fill="#b91c1c">
+            ${milestone.videoSuggestions.length}
+          </text>
+        ` : ''}
+      </g>
+    `;
+    
+    return connectionLine + milestoneNode;
+  }).join("");
+  
+  // Generate the end node
+  const finalConnectionY = 130 + milestones.length * 120;
+  const finalConnection = `
+    <line 
+      x1="410" y1="${finalConnectionY + 20}" 
+      x2="410" y2="${finalConnectionY + 60}" 
+      stroke="${colors.connectionLine}" 
+      stroke-width="2" 
+      marker-end="url(#arrowhead)" 
+    />
+  `;
+  
+  const endNode = `
+    <g filter="url(#shadow)">
+      <rect 
+        x="350" y="${finalConnectionY + 70}" 
+        width="120" height="60" 
+        rx="12" 
+        fill="${colors.endNode.fill}" 
+        stroke="${colors.endNode.stroke}" 
+        stroke-width="2" 
+      />
+      <text x="410" y="${finalConnectionY + 105}" text-anchor="middle" font-family="Inter, system-ui, sans-serif" font-size="14" font-weight="600" fill="${colors.endNode.text}">
+        Mastery!
+      </text>
+    </g>
+  `;
+  
+  // Combine all SVG elements
+  return `
+  <svg width="800" height="${height}" xmlns="http://www.w3.org/2000/svg">
+    ${defs}
+    
+    <!-- Background pattern for visual interest -->
+    <pattern id="grid" width="20" height="20" patternUnits="userSpaceOnUse">
+      <circle cx="10" cy="10" r="1" fill="#e2e8f0" fill-opacity="0.6" />
+    </pattern>
+    <rect width="800" height="${height}" fill="${colors.background}" />
+    <rect width="800" height="${height}" fill="url(#grid)" />
+    
+    <!-- Roadmap elements -->
+    ${startNode}
+    ${milestoneNodes}
+    ${finalConnection}
+    ${endNode}
   </svg>`;
 }
 
