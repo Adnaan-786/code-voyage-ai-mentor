@@ -1,3 +1,4 @@
+
 import { RoadmapData } from '@/components/Roadmap';
 
 interface FormData {
@@ -13,6 +14,8 @@ interface FormData {
 // This would normally be an API call to an AI service
 // For demo purposes, we're generating mock data based on user input
 export async function generateRoadmap(formData: FormData): Promise<RoadmapData> {
+  console.log("Generating roadmap for:", formData.language);
+  
   // Simulate API delay
   await new Promise(resolve => setTimeout(resolve, 3000));
   
@@ -83,6 +86,8 @@ function generateMilestones(formData: FormData): any[] {
 }
 
 function generateLanguageSpecificMilestones(language: string, skillLevel: number): any[] {
+  console.log(`Generating milestones for ${language} at skill level ${skillLevel}`);
+  
   // Base milestones by language and skill level
   if (language === "JavaScript") {
     return generateJavaScriptMilestones(skillLevel);

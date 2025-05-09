@@ -1,3 +1,4 @@
+
 import { useEffect, useRef, useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -63,12 +64,15 @@ const Roadmap = ({ data, userName, languageName }: RoadmapProps) => {
   const flowchartRef = useRef<HTMLDivElement>(null);
   const [expandedMilestones, setExpandedMilestones] = useState<{[key: number]: boolean}>({});
   const [newNotes, setNewNotes] = useState<{[key: number]: string}>({});
+  const flowchartKey = useRef<number>(0);
 
   useEffect(() => {
     if (data) {
-      // In a real implementation, we would generate SVG flowchart here
-      // For now, we'll use a mockup SVG string
-      const mockupSvg = generateMockupFlowchart(data);
+      // Increment the key to force re-rendering of the flowchart
+      flowchartKey.current += 1;
+      
+      // Generate flowchart based on the current data
+      const mockupSvg = generateMockupFlowchart(data, languageName);
       setFlowchartSvg(mockupSvg);
       
       // Initialize all milestones as collapsed except the first one
@@ -87,7 +91,7 @@ const Roadmap = ({ data, userName, languageName }: RoadmapProps) => {
       
       setNewNotes(initialNotes);
     }
-  }, [data]);
+  }, [data, languageName]); // Added languageName dependency to ensure flowchart updates when language changes
 
   const toggleMilestone = (index: number) => {
     setExpandedMilestones(prev => ({
@@ -184,7 +188,8 @@ const Roadmap = ({ data, userName, languageName }: RoadmapProps) => {
                   <div 
                     ref={flowchartRef} 
                     className="overflow-auto min-h-[400px] flex items-center justify-center"
-                    dangerouslySetInnerHTML={{ __html: flowchartSvg || "" }} 
+                    dangerouslySetInnerHTML={{ __html: flowchartSvg || "" }}
+                    key={flowchartKey.current} // Add key to force re-render when flowchart changes
                   />
                 </div>
               </TabsContent>
@@ -345,12 +350,14 @@ const Roadmap = ({ data, userName, languageName }: RoadmapProps) => {
 };
 
 // This function generates a modern SVG flowchart based on the roadmap data
-function generateMockupFlowchart(data: RoadmapData): string {
+function generateMockupFlowchart(data: RoadmapData, language: string): string {
+  console.log(`Generating flowchart for ${language}`, data);
+  
   const milestones = data.milestones;
   const height = Math.max(150 + milestones.length * 120, 500);
   
-  // Define colors for a modern looking chart
-  const colors = {
+  // Define colors for a modern looking chart - customize based on language
+  let colors = {
     background: "#f8fafc",
     startNode: {
       fill: "#eff6ff",
@@ -371,6 +378,93 @@ function generateMockupFlowchart(data: RoadmapData): string {
     shadow: "0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1)"
   };
   
+  // Customize colors based on language
+  if (language === "Python") {
+    colors = {
+      background: "#f7fafc",
+      startNode: {
+        fill: "#e6f4ff",
+        stroke: "#4a9df3",
+        text: "#174d8c"
+      },
+      milestoneNode: {
+        fill: "#eef7ff",
+        stroke: "#3b82f6",
+        text: "#1e3a8a"
+      },
+      endNode: {
+        fill: "#dcfce7",
+        stroke: "#22c55e",
+        text: "#166534"
+      },
+      connectionLine: "#6366f1",
+      shadow: "0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1)"
+    };
+  } else if (language === "JavaScript") {
+    colors = {
+      background: "#fffef7",
+      startNode: {
+        fill: "#fffbeb",
+        stroke: "#f59e0b",
+        text: "#92400e"
+      },
+      milestoneNode: {
+        fill: "#fef9c3",
+        stroke: "#eab308",
+        text: "#854d0e"
+      },
+      endNode: {
+        fill: "#ecfdf5",
+        stroke: "#10b981",
+        text: "#065f46"
+      },
+      connectionLine: "#f59e0b",
+      shadow: "0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1)"
+    };
+  } else if (language === "Java") {
+    colors = {
+      background: "#f8f9fa",
+      startNode: {
+        fill: "#ffe2e2",
+        stroke: "#ef4444",
+        text: "#7f1d1d"
+      },
+      milestoneNode: {
+        fill: "#ffedd5",
+        stroke: "#f97316",
+        text: "#9a3412"
+      },
+      endNode: {
+        fill: "#ecfdf5",
+        stroke: "#10b981",
+        text: "#065f46"
+      },
+      connectionLine: "#ef4444",
+      shadow: "0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1)"
+    };
+  } else if (language === "React") {
+    colors = {
+      background: "#f6f8fa",
+      startNode: {
+        fill: "#e0f2fe",
+        stroke: "#0ea5e9",
+        text: "#075985"
+      },
+      milestoneNode: {
+        fill: "#dbeafe",
+        stroke: "#3b82f6",
+        text: "#1e40af"
+      },
+      endNode: {
+        fill: "#c7d2fe",
+        stroke: "#4f46e5",
+        text: "#3730a3"
+      },
+      connectionLine: "#0ea5e9",
+      shadow: "0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1)"
+    };
+  }
+  
   // SVG defs with modern markers and filters
   const defs = `
     <defs>
@@ -389,7 +483,7 @@ function generateMockupFlowchart(data: RoadmapData): string {
     <g filter="url(#shadow)">
       <rect x="350" y="30" width="120" height="60" rx="12" fill="${colors.startNode.fill}" stroke="${colors.startNode.stroke}" stroke-width="2" />
       <text x="410" y="65" text-anchor="middle" font-family="Inter, system-ui, sans-serif" font-size="14" font-weight="600" fill="${colors.startNode.text}">
-        Start Learning
+        Start ${language}
       </text>
     </g>
   `;
@@ -481,7 +575,7 @@ function generateMockupFlowchart(data: RoadmapData): string {
         stroke-width="2" 
       />
       <text x="410" y="${finalConnectionY + 105}" text-anchor="middle" font-family="Inter, system-ui, sans-serif" font-size="14" font-weight="600" fill="${colors.endNode.text}">
-        Mastery!
+        ${language} Mastery!
       </text>
     </g>
   `;

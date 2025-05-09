@@ -25,6 +25,7 @@ export const saveRoadmap = async (
       throw new Error("User is not authenticated");
     }
 
+    // Convert RoadmapData to Json explicitly
     const { data, error } = await supabase
       .from("roadmaps")
       .insert({
