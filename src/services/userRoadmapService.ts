@@ -23,8 +23,8 @@ export const saveRoadmap = async (
       throw new Error("User is not authenticated");
     }
 
-    const { data, error } = await supabase
-      .from("user_roadmaps")
+    const { data, error } = await (supabase
+      .from("user_roadmaps") as any)
       .insert({
         title,
         language,
@@ -44,8 +44,8 @@ export const saveRoadmap = async (
 
 export const getUserRoadmaps = async (): Promise<UserRoadmap[]> => {
   try {
-    const { data, error } = await supabase
-      .from("user_roadmaps")
+    const { data, error } = await (supabase
+      .from("user_roadmaps") as any)
       .select("*")
       .order("created_at", { ascending: false });
 
@@ -59,8 +59,8 @@ export const getUserRoadmaps = async (): Promise<UserRoadmap[]> => {
 
 export const getRoadmapById = async (id: string): Promise<UserRoadmap | null> => {
   try {
-    const { data, error } = await supabase
-      .from("user_roadmaps")
+    const { data, error } = await (supabase
+      .from("user_roadmaps") as any)
       .select("*")
       .eq("id", id)
       .single();
@@ -75,8 +75,8 @@ export const getRoadmapById = async (id: string): Promise<UserRoadmap | null> =>
 
 export const deleteRoadmap = async (id: string): Promise<boolean> => {
   try {
-    const { error } = await supabase
-      .from("user_roadmaps")
+    const { error } = await (supabase
+      .from("user_roadmaps") as any)
       .delete()
       .eq("id", id);
 
