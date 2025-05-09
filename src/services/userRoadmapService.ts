@@ -8,6 +8,7 @@ export interface UserRoadmap {
   language: string;
   content: RoadmapData;
   created_at: string;
+  user_id?: string;
 }
 
 export const saveRoadmap = async (
@@ -23,12 +24,12 @@ export const saveRoadmap = async (
       throw new Error("User is not authenticated");
     }
 
-    const { data, error } = await (supabase
-      .from("user_roadmaps") as any)
+    const { data, error } = await supabase
+      .from("roadmaps")
       .insert({
         title,
         language,
-        content: content as any, // Cast to any to resolve type issues
+        content,
         user_id: userId
       })
       .select("id")
@@ -44,13 +45,21 @@ export const saveRoadmap = async (
 
 export const getUserRoadmaps = async (): Promise<UserRoadmap[]> => {
   try {
-    const { data, error } = await (supabase
-      .from("user_roadmaps") as any)
+    const user = await supabase.auth.getUser();
+    const userId = user.data.user?.id;
+    
+    if (!userId) {
+      throw new Error("User is not authenticated");
+    }
+    
+    const { data, error } = await supabase
+      .from("roadmaps")
       .select("*")
+      .eq("user_id", userId)
       .order("created_at", { ascending: false });
 
     if (error) throw error;
-    return data as unknown as UserRoadmap[]; // Use type assertion to resolve type issues
+    return data as unknown as UserRoadmap[];
   } catch (error: any) {
     console.error("Error fetching roadmaps:", error.message);
     return [];
@@ -59,14 +68,14 @@ export const getUserRoadmaps = async (): Promise<UserRoadmap[]> => {
 
 export const getRoadmapById = async (id: string): Promise<UserRoadmap | null> => {
   try {
-    const { data, error } = await (supabase
-      .from("user_roadmaps") as any)
+    const { data, error } = await supabase
+      .from("roadmaps")
       .select("*")
       .eq("id", id)
       .single();
 
     if (error) throw error;
-    return data as unknown as UserRoadmap; // Use type assertion to resolve type issues
+    return data as unknown as UserRoadmap;
   } catch (error: any) {
     console.error("Error fetching roadmap:", error.message);
     return null;
@@ -75,8 +84,8 @@ export const getRoadmapById = async (id: string): Promise<UserRoadmap | null> =>
 
 export const deleteRoadmap = async (id: string): Promise<boolean> => {
   try {
-    const { error } = await (supabase
-      .from("user_roadmaps") as any)
+    const { error } = await supabase
+      .from("roadmaps")
       .delete()
       .eq("id", id);
 
