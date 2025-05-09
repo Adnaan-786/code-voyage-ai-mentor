@@ -10,10 +10,18 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { LogOut } from "lucide-react";
+import { useEffect, useState } from "react";
 
 const AuthButton = () => {
   const { user, signOut } = useAuth();
   const navigate = useNavigate();
+  const [mounted, setMounted] = useState(false);
+
+  // This ensures the component re-renders after mounting
+  // to prevent hydration mismatch between server and client
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   const handleSignOut = async () => {
     await signOut();
@@ -24,6 +32,11 @@ const AuthButton = () => {
     if (!email) return "?";
     return email.split("@")[0].substring(0, 2).toUpperCase();
   };
+
+  // Don't render anything until component is mounted to prevent hydration issues
+  if (!mounted) {
+    return null;
+  }
 
   if (!user) {
     return (
