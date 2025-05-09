@@ -2,6 +2,8 @@
 import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { MoonIcon, SunIcon } from "lucide-react";
+import AuthButton from "@/components/AuthButton";
+import NavbarAuth from "@/components/NavbarAuth";
 
 const Navbar = () => {
   const [isDarkMode, setIsDarkMode] = useState(false);
@@ -31,6 +33,7 @@ const Navbar = () => {
           <span className="text-xl font-bold text-gradient">Code Voyage</span>
         </div>
         <div className="flex items-center gap-4">
+          <NavbarAuth />
           <Button
             variant="ghost"
             size="icon"
@@ -39,6 +42,7 @@ const Navbar = () => {
           >
             {isDarkMode ? <SunIcon className="h-5 w-5" /> : <MoonIcon className="h-5 w-5" />}
           </Button>
+          <AuthButton />
         </div>
       </div>
     </nav>

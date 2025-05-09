@@ -8,7 +8,8 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { UserCircle, LogOut } from "lucide-react";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { LogOut } from "lucide-react";
 
 const AuthButton = () => {
   const { user, signOut } = useAuth();
@@ -17,6 +18,11 @@ const AuthButton = () => {
   const handleSignOut = async () => {
     await signOut();
     navigate("/");
+  };
+
+  const getInitials = (email: string) => {
+    if (!email) return "?";
+    return email.split("@")[0].substring(0, 2).toUpperCase();
   };
 
   if (!user) {
@@ -30,12 +36,17 @@ const AuthButton = () => {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button variant="outline" className="flex items-center gap-2">
-          <UserCircle className="h-4 w-4" />
-          {user.email?.split("@")[0]}
+        <Button variant="ghost" size="icon" className="rounded-full overflow-hidden p-0">
+          <Avatar>
+            <AvatarImage src={user.user_metadata?.avatar_url || ""} />
+            <AvatarFallback>{getInitials(user.email || "")}</AvatarFallback>
+          </Avatar>
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end">
+        <DropdownMenuItem className="font-medium opacity-70">
+          {user.email}
+        </DropdownMenuItem>
         <DropdownMenuItem onClick={handleSignOut} className="cursor-pointer">
           <LogOut className="mr-2 h-4 w-4" />
           Sign out

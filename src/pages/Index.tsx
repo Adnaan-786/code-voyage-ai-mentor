@@ -10,6 +10,7 @@ import { useToast } from "@/hooks/use-toast";
 import LoadingSpinner from "@/components/LoadingSpinner";
 import SEOHead from "@/components/SEOHead";
 import { useMediaQuery } from "@/hooks/use-media-query";
+import SaveRoadmapButton from "@/components/SaveRoadmapButton";
 
 interface FormData {
   name: string;
@@ -89,11 +90,20 @@ const Index = () => {
             </div>
           ) : (
             roadmapData && userData && (
-              <Roadmap 
-                data={roadmapData} 
-                userName={userData.name} 
-                languageName={userData.language} 
-              />
+              <div className="container">
+                <div className="flex justify-end mb-4">
+                  <SaveRoadmapButton 
+                    roadmapData={roadmapData} 
+                    title={`${userData.language} Learning Roadmap`}
+                    language={userData.language}
+                  />
+                </div>
+                <Roadmap 
+                  data={roadmapData} 
+                  userName={userData.name} 
+                  languageName={userData.language} 
+                />
+              </div>
             )
           )}
         </div>

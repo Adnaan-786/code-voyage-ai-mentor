@@ -8,10 +8,11 @@ import { AuthProvider } from "@/contexts/AuthContext";
 import { HelmetProvider } from "react-helmet-async";
 import Index from "./pages/Index";
 import Auth from "./pages/Auth";
+import Roadmaps from "./pages/Roadmaps";
+import RoadmapDetails from "./pages/RoadmapDetails";
 import NotFound from "./pages/NotFound";
 import ProtectedRoute from "./components/ProtectedRoute";
 import SEOHead from "./components/SEOHead";
-import LoadingSpinner from "./components/LoadingSpinner";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -48,10 +49,12 @@ const App = () => (
       <Route path="/auth" element={<Auth />} />
       <Route path="/roadmaps" element={
         <ProtectedRoute>
-          <div className="container py-16">
-            <h1 className="text-3xl font-bold mb-6">My Saved Roadmaps</h1>
-            <p>Your saved roadmaps will appear here.</p>
-          </div>
+          <Roadmaps />
+        </ProtectedRoute>
+      } />
+      <Route path="/roadmap/:id" element={
+        <ProtectedRoute>
+          <RoadmapDetails />
         </ProtectedRoute>
       } />
       {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
