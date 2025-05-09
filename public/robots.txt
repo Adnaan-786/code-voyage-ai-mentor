@@ -1,14 +1,38 @@
+
+# Allow all crawlers full access
+User-agent: *
+Allow: /
+
+# Sitemap location (you'll need to generate one when you have a domain)
+# Sitemap: https://your-domain.com/sitemap.xml
+
+# Specific rules for major crawlers
 User-agent: Googlebot
 Allow: /
 
 User-agent: Bingbot
 Allow: /
 
-User-agent: Twitterbot
+User-agent: Yandexbot
 Allow: /
 
 User-agent: facebookexternalhit
 Allow: /
 
-User-agent: *
+User-agent: Twitterbot
 Allow: /
+
+User-agent: LinkedInBot
+Allow: /
+
+User-agent: Pinterestbot
+Allow: /
+
+User-agent: Instagrambot
+Allow: /
+
+# Disallow API paths (if any)
+# Disallow: /api/
+
+# Crawl delay for all bots
+Crawl-delay: 10

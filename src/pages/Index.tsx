@@ -7,6 +7,9 @@ import Roadmap, { RoadmapData } from "@/components/Roadmap";
 import Footer from "@/components/Footer";
 import { generateRoadmap } from "@/services/roadmapService";
 import { useToast } from "@/hooks/use-toast";
+import LoadingSpinner from "@/components/LoadingSpinner";
+import SEOHead from "@/components/SEOHead";
+import { useMediaQuery } from "@/hooks/use-media-query";
 
 interface FormData {
   name: string;
@@ -23,6 +26,7 @@ const Index = () => {
   const [roadmapData, setRoadmapData] = useState<RoadmapData | null>(null);
   const [isGenerating, setIsGenerating] = useState(false);
   const [userData, setUserData] = useState<{ name: string, language: string } | null>(null);
+  const isMobile = useMediaQuery("(max-width: 768px)");
 
   const handleFormSubmit = async (formData: FormData) => {
     try {
@@ -41,7 +45,10 @@ const Index = () => {
       
       // Scroll to roadmap section
       setTimeout(() => {
-        document.getElementById("roadmap-section")?.scrollIntoView({ behavior: "smooth" });
+        document.getElementById("roadmap-section")?.scrollIntoView({ 
+          behavior: "smooth", 
+          block: isMobile ? "start" : "center" 
+        });
       }, 100);
       
       toast({
@@ -63,17 +70,31 @@ const Index = () => {
 
   return (
     <div className="flex flex-col min-h-screen">
+      <SEOHead 
+        title={roadmapData ? `${userData?.language} Learning Roadmap - CodeVoyage AI` : undefined}
+        description={roadmapData ? `Personalized ${userData?.language} roadmap with video tutorials and interactive exercises` : undefined}
+      />
       <Navbar />
       <main className="flex-grow">
         <Hero />
         <UserForm onSubmit={handleFormSubmit} isGenerating={isGenerating} />
-        <div id="roadmap-section">
-          {roadmapData && userData && (
-            <Roadmap 
-              data={roadmapData} 
-              userName={userData.name} 
-              languageName={userData.language} 
-            />
+        <div id="roadmap-section" className="scroll-mt-16">
+          {isGenerating ? (
+            <div className="container py-16">
+              <div className="max-w-4xl mx-auto">
+                <div className="flex flex-col items-center justify-center p-10 border rounded-lg bg-card">
+                  <LoadingSpinner size={40} message={`Creating your personalized ${userData?.language} roadmap...`} />
+                </div>
+              </div>
+            </div>
+          ) : (
+            roadmapData && userData && (
+              <Roadmap 
+                data={roadmapData} 
+                userName={userData.name} 
+                languageName={userData.language} 
+              />
+            )
           )}
         </div>
       </main>
