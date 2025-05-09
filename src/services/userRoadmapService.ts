@@ -1,6 +1,7 @@
 
 import { supabase } from "@/integrations/supabase/client";
 import { RoadmapData } from "@/components/Roadmap";
+import { Json } from "@/integrations/supabase/types";
 
 export interface UserRoadmap {
   id: string;
@@ -29,7 +30,7 @@ export const saveRoadmap = async (
       .insert({
         title,
         language,
-        content,
+        content: content as unknown as Json,
         user_id: userId
       })
       .select("id")
