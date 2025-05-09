@@ -16,13 +16,20 @@ export const saveRoadmap = async (
   content: RoadmapData
 ): Promise<string | null> => {
   try {
+    const user = await supabase.auth.getUser();
+    const userId = user.data.user?.id;
+    
+    if (!userId) {
+      throw new Error("User is not authenticated");
+    }
+
     const { data, error } = await supabase
       .from("user_roadmaps")
       .insert({
         title,
         language,
         content: content as any, // Cast to any to resolve type issues
-        user_id: supabase.auth.getUser().then(res => res.data.user?.id) // Get the current user's ID
+        user_id: userId
       })
       .select("id")
       .single();
