@@ -21,7 +21,8 @@ export const saveRoadmap = async (
       .insert({
         title,
         language,
-        content,
+        content: content as any, // Cast to any to resolve type issues
+        user_id: supabase.auth.getUser().then(res => res.data.user?.id) // Get the current user's ID
       })
       .select("id")
       .single();
@@ -42,7 +43,7 @@ export const getUserRoadmaps = async (): Promise<UserRoadmap[]> => {
       .order("created_at", { ascending: false });
 
     if (error) throw error;
-    return data as UserRoadmap[];
+    return data as unknown as UserRoadmap[]; // Use type assertion to resolve type issues
   } catch (error: any) {
     console.error("Error fetching roadmaps:", error.message);
     return [];
@@ -58,7 +59,7 @@ export const getRoadmapById = async (id: string): Promise<UserRoadmap | null> =>
       .single();
 
     if (error) throw error;
-    return data as UserRoadmap;
+    return data as unknown as UserRoadmap; // Use type assertion to resolve type issues
   } catch (error: any) {
     console.error("Error fetching roadmap:", error.message);
     return null;

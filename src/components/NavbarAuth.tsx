@@ -1,7 +1,7 @@
 
 import { useAuth } from "@/contexts/AuthContext";
 import { Link } from "react-router-dom";
-import { BookOpen, Code, PlusCircle } from "lucide-react";
+import { BookOpen, PlusCircle } from "lucide-react";
 
 const NavbarAuth = () => {
   const { user } = useAuth();
