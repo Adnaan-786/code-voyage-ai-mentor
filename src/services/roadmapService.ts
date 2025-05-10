@@ -914,4 +914,26 @@ function generateJavaScriptMilestones(skillLevel: number): any[] {
           {
             title: "JavaScript: The Advanced Concepts (2023)",
             url: "https://www.youtube.com/watch?v=R9I85RhI7Cg",
-            thumbnail: "https://i.ytimg
+            thumbnail: "https://i.ytimg.com/vi/R9I85RhI7Cg/mqdefault.jpg",
+            duration: "1:30:00",
+            source: "JavaScript Mastery"
+          }
+        ],
+        exercises: [
+          {
+            title: "Advanced Closures",
+            description: "Create implementations of advanced closure patterns.",
+            difficulty: "hard"
+          },
+          {
+            title: "Prototype Inheritance",
+            description: "Build a complex object hierarchy using prototypal inheritance.",
+            difficulty: "hard"
+          }
+        ],
+        notes: [],
+        estimatedTime: "6-8 weeks"
+      }
+    ];
+  }
+}
