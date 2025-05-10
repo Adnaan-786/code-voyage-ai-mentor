@@ -91,7 +91,77 @@ function generateMilestones(formData: FormData): any[] {
     return languageMilestones;
   } else {
     // Fallback for generic milestones
-    return generateGenericMilestones("Learning", currentSkill);
+    return generateGenericTopicMilestones("Learning", currentSkill);
+  }
+}
+
+function adaptMilestonesToLearningStyle(milestones: any[], learningStyle: string): void {
+  // Apply learning style preferences to milestones
+  milestones.forEach(milestone => {
+    if (learningStyle === "visual") {
+      // Prioritize video content
+      milestone.videoSuggestions = milestone.videoSuggestions || [];
+      if (milestone.videoSuggestions.length === 0) {
+        milestone.videoSuggestions.push({
+          title: `${milestone.title} - Visual Guide`,
+          url: "#",
+          thumbnail: "https://picsum.photos/seed/visual/320/180",
+          duration: "45:00",
+          source: "Learning Channel"
+        });
+      }
+    } else if (learningStyle === "reading") {
+      // Prioritize documentation and articles
+      milestone.resources = milestone.resources || [];
+      if (milestone.resources.length === 0) {
+        milestone.resources.push({
+          title: `${milestone.title} - Comprehensive Guide`,
+          url: "#",
+          type: "documentation",
+          description: `In-depth reading material for ${milestone.title}.`
+        });
+      }
+    } else if (learningStyle === "interactive") {
+      // Prioritize exercises
+      milestone.exercises = milestone.exercises || [];
+      if (milestone.exercises.length === 0) {
+        milestone.exercises.push({
+          title: `${milestone.title} - Interactive Workshop`,
+          description: `Hands-on activities to learn ${milestone.title}.`,
+          difficulty: "medium"
+        });
+      }
+    }
+  });
+}
+
+function adaptMilestonesToTimeCommitment(milestones: any[], timeCommitment: string): void {
+  // Adjust milestone scope based on time commitment
+  if (timeCommitment === "minimal") {
+    // Keep milestones focused and minimal
+    milestones.forEach(milestone => {
+      milestone.estimatedTime = milestone.estimatedTime.replace(/\d+-\d+/, (match: string) => {
+        const [min, max] = match.split('-').map(num => parseInt(num, 10));
+        return `${min}-${Math.floor(max * 0.8)}`;
+      });
+    });
+    
+    // Limit number of milestones for minimal time commitment
+    if (milestones.length > 3) {
+      milestones.splice(3);
+    }
+  } else if (timeCommitment === "fulltime") {
+    // Expand milestones for full-time learning
+    milestones.forEach(milestone => {
+      milestone.exercises = milestone.exercises || [];
+      if (milestone.exercises.length < 3) {
+        milestone.exercises.push({
+          title: `${milestone.title} - Advanced Project`,
+          description: `Comprehensive project to deeply master ${milestone.title}.`,
+          difficulty: "hard"
+        });
+      }
+    });
   }
 }
 
@@ -122,14 +192,174 @@ function generateLanguageSpecificMilestones(language: string, skillLevel: number
   if (language === "JavaScript") {
     return generateJavaScriptMilestones(skillLevel);
   } else if (language === "Python") {
-    return generatePythonMilestones(skillLevel);
+    return generatePythonSpecificMilestones(skillLevel);
   } else if (language === "React") {
-    return generateReactMilestones(skillLevel);
+    return generateReactSpecificMilestones(skillLevel);
   } else if (language === "Java") {
-    return generateJavaMilestones(skillLevel);
+    return generateJavaSpecificMilestones(skillLevel);
   } else {
     // Generic milestones for other languages
-    return generateGenericMilestones(language, skillLevel);
+    return generateGenericTopicMilestones(language, skillLevel);
+  }
+}
+
+// Add these missing functions
+function generatePythonSpecificMilestones(skillLevel: number): any[] {
+  if (skillLevel <= 2) {
+    // Beginner Python milestones
+    return [
+      {
+        title: "Python Fundamentals",
+        description: "Learn the core concepts of Python programming.",
+        skills: ["Variables", "Data Types", "Control Flow", "Functions", "Basic Data Structures"],
+        resources: [
+          {
+            title: "Python.org Official Documentation",
+            url: "https://docs.python.org/3/tutorial/",
+            type: "documentation",
+            description: "The official Python tutorial."
+          }
+        ],
+        videoSuggestions: [
+          {
+            title: "Python for Beginners - Learn Python in 1 Hour",
+            url: "https://www.youtube.com/watch?v=kqtD5dpn9C8",
+            thumbnail: "https://i.ytimg.com/vi/kqtD5dpn9C8/mqdefault.jpg",
+            duration: "1:00:00",
+            source: "Programming with Mosh"
+          }
+        ],
+        exercises: [
+          {
+            title: "Basic Python Programs",
+            description: "Create simple programs using Python fundamentals.",
+            difficulty: "easy"
+          }
+        ],
+        notes: [],
+        estimatedTime: "2-3 weeks"
+      }
+    ];
+  } else {
+    // Advanced Python milestones
+    return [
+      {
+        title: "Advanced Python",
+        description: "Master advanced Python concepts and techniques.",
+        skills: ["Decorators", "Generators", "Context Managers", "Metaprogramming"],
+        resources: [],
+        videoSuggestions: [],
+        exercises: [],
+        notes: [],
+        estimatedTime: "4-6 weeks"
+      }
+    ];
+  }
+}
+
+function generateReactSpecificMilestones(skillLevel: number): any[] {
+  if (skillLevel <= 2) {
+    // Beginner React milestones
+    return [
+      {
+        title: "React Fundamentals",
+        description: "Learn the core concepts of React.",
+        skills: ["Components", "Props", "State", "Hooks"],
+        resources: [
+          {
+            title: "React Documentation",
+            url: "https://react.dev/learn",
+            type: "documentation",
+            description: "The official React documentation."
+          }
+        ],
+        videoSuggestions: [
+          {
+            title: "React Course For Beginners",
+            url: "https://www.youtube.com/watch?v=bMknfKXIFA8",
+            thumbnail: "https://i.ytimg.com/vi/bMknfKXIFA8/mqdefault.jpg",
+            duration: "7:00:00",
+            source: "freeCodeCamp.org"
+          }
+        ],
+        exercises: [
+          {
+            title: "Build a Todo App",
+            description: "Create a simple todo app with React.",
+            difficulty: "medium"
+          }
+        ],
+        notes: [],
+        estimatedTime: "3-4 weeks"
+      }
+    ];
+  } else {
+    // Advanced React milestones
+    return [
+      {
+        title: "Advanced React",
+        description: "Master advanced React concepts and techniques.",
+        skills: ["Context API", "Advanced Hooks", "Performance Optimization", "Server Components"],
+        resources: [],
+        videoSuggestions: [],
+        exercises: [],
+        notes: [],
+        estimatedTime: "6-8 weeks"
+      }
+    ];
+  }
+}
+
+function generateJavaSpecificMilestones(skillLevel: number): any[] {
+  if (skillLevel <= 2) {
+    // Beginner Java milestones
+    return [
+      {
+        title: "Java Fundamentals",
+        description: "Learn the core concepts of Java programming.",
+        skills: ["Java Syntax", "OOP Concepts", "Exception Handling", "Collections"],
+        resources: [
+          {
+            title: "Java Documentation",
+            url: "https://docs.oracle.com/javase/tutorial/",
+            type: "documentation",
+            description: "The official Java tutorial."
+          }
+        ],
+        videoSuggestions: [
+          {
+            title: "Java Tutorial for Beginners",
+            url: "https://www.youtube.com/watch?v=eIrMbAQSU34",
+            thumbnail: "https://i.ytimg.com/vi/eIrMbAQSU34/mqdefault.jpg",
+            duration: "2:30:00",
+            source: "Programming with Mosh"
+          }
+        ],
+        exercises: [
+          {
+            title: "Basic Java Programs",
+            description: "Create simple programs using Java fundamentals.",
+            difficulty: "easy"
+          }
+        ],
+        notes: [],
+        estimatedTime: "3-4 weeks"
+      }
+    ];
+  } else {
+    // Advanced Java milestones
+    return [
+      {
+        title: "Advanced Java",
+        description: "Master advanced Java concepts and techniques.",
+        skills: ["Multithreading", "Streams API", "Java EE", "Spring Framework"],
+        resources: [],
+        videoSuggestions: [],
+        exercises: [],
+        notes: [],
+        estimatedTime: "8-10 weeks"
+      }
+    ];
   }
 }
 
