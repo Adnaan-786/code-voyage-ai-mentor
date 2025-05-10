@@ -20,6 +20,7 @@ interface FormData {
   name: string;
   goal: string;
   language: string;
+  topic: string;
   currentSkill: number;
   learningStyle: string;
   timeCommitment: string;
@@ -33,6 +34,14 @@ const LANGUAGES = [
   "Angular", "Vue.js", "Node.js", "Django", "Flutter"
 ];
 
+const TOPICS = [
+  "Web Development", "Data Science", "Mobile Development", 
+  "Game Development", "DevOps", "Machine Learning",
+  "Cloud Computing", "Cybersecurity", "Blockchain",
+  "UI/UX Design", "Artificial Intelligence", "Database Management",
+  "IoT Development", "Embedded Systems", "Full Stack Development"
+];
+
 const LEARNING_STYLES = [
   "Visual", "Hands-on", "Reading/Writing", "Project-based", "Video tutorials"
 ];
@@ -43,6 +52,7 @@ const UserForm = ({ onSubmit, isGenerating }: UserFormProps) => {
     name: "",
     goal: "",
     language: "",
+    topic: "",
     currentSkill: 1,
     learningStyle: "",
     timeCommitment: "",
@@ -73,7 +83,7 @@ const UserForm = ({ onSubmit, isGenerating }: UserFormProps) => {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!formData.goal || !formData.language || !formData.learningStyle || !formData.timeCommitment) {
+    if (!formData.goal || (!formData.language && !formData.topic) || !formData.learningStyle || !formData.timeCommitment) {
       toast({
         title: "Missing information",
         description: "Please fill out all required fields",
@@ -135,11 +145,30 @@ const UserForm = ({ onSubmit, isGenerating }: UserFormProps) => {
                 </div>
 
                 <div>
-                  <Label htmlFor="language" className="required">Programming Language or Technology</Label>
+                  <Label htmlFor="topic" className="required">Learning Topic or Field</Label>
+                  <Select 
+                    value={formData.topic} 
+                    onValueChange={(value) => handleSelectChange("topic", value)}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select a topic or field" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {TOPICS.map(topic => (
+                        <SelectItem key={topic} value={topic}>{topic}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  <p className="text-sm text-muted-foreground mt-1">
+                    Select a general field to get a broader learning roadmap
+                  </p>
+                </div>
+
+                <div>
+                  <Label htmlFor="language">Programming Language or Technology</Label>
                   <Select 
                     value={formData.language} 
                     onValueChange={(value) => handleSelectChange("language", value)}
-                    required
                   >
                     <SelectTrigger>
                       <SelectValue placeholder="Select a language or technology" />
@@ -150,6 +179,9 @@ const UserForm = ({ onSubmit, isGenerating }: UserFormProps) => {
                       ))}
                     </SelectContent>
                   </Select>
+                  <p className="text-sm text-muted-foreground mt-1">
+                    Optionally specify a language to focus your roadmap
+                  </p>
                 </div>
 
                 <div>

@@ -66,11 +66,29 @@ const RoadmapDetailsPage = () => {
             </Button>
           </div>
         ) : roadmap ? (
-          <Roadmap 
-            data={roadmap.content} 
-            userName="You"
-            languageName={roadmap.language} 
-          />
+          <div>
+            <div className="mb-4">
+              <h1 className="text-3xl font-bold mb-2">{roadmap.title}</h1>
+              {roadmap.description && (
+                <p className="text-muted-foreground">{roadmap.description}</p>
+              )}
+              <div className="flex gap-2 mt-4">
+                <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-primary/10 text-primary">
+                  {roadmap.language}
+                </span>
+                {roadmap.topic && (
+                  <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-secondary/10 text-secondary">
+                    {roadmap.topic}
+                  </span>
+                )}
+              </div>
+            </div>
+            <Roadmap 
+              data={roadmap.content} 
+              userName="You"
+              languageName={roadmap.language} 
+            />
+          </div>
         ) : null}
       </main>
       <Footer />

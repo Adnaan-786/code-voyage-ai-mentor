@@ -90,13 +90,13 @@ const RoadmapsPage = () => {
                 <CardHeader className="pb-4">
                   <CardTitle className="line-clamp-1">{roadmap.title}</CardTitle>
                   <CardDescription>
-                    {roadmap.language} • {formatDistanceToNow(new Date(roadmap.created_at), { addSuffix: true })}
+                    {roadmap.topic || roadmap.language} • {formatDistanceToNow(new Date(roadmap.created_at), { addSuffix: true })}
                   </CardDescription>
                 </CardHeader>
                 <CardContent className="pb-6">
                   <div className="text-sm">
                     <p className="line-clamp-3">
-                      A personalized learning path for {roadmap.language} with {roadmap.content.milestones?.length || 0} milestones.
+                      {roadmap.description || `A personalized learning path for ${roadmap.language} with ${roadmap.content.milestones?.length || 0} milestones.`}
                     </p>
                   </div>
                 </CardContent>

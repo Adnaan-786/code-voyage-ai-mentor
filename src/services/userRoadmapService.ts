@@ -7,6 +7,8 @@ export interface UserRoadmap {
   id: string;
   title: string;
   language: string;
+  topic: string;
+  description: string;
   content: RoadmapData;
   created_at: string;
   user_id?: string;
@@ -15,6 +17,8 @@ export interface UserRoadmap {
 export const saveRoadmap = async (
   title: string,
   language: string,
+  topic: string,
+  description: string,
   content: RoadmapData
 ): Promise<string | null> => {
   try {
@@ -31,6 +35,8 @@ export const saveRoadmap = async (
       .insert({
         title,
         language,
+        topic,
+        description,
         content: content as unknown as Json,
         user_id: userId
       })
@@ -96,5 +102,30 @@ export const deleteRoadmap = async (id: string): Promise<boolean> => {
   } catch (error: any) {
     console.error("Error deleting roadmap:", error.message);
     return false;
+  }
+};
+
+// New functions for topic-based operations
+export const getRoadmapsByTopic = async (topic: string): Promise<UserRoadmap[]> => {
+  try {
+    const user = await supabase.auth.getUser();
+    const userId = user.data.user?.id;
+    
+    if (!userId) {
+      throw new Error("User is not authenticated");
+    }
+    
+    const { data, error } = await supabase
+      .from("roadmaps")
+      .select("*")
+      .eq("user_id", userId)
+      .eq("topic", topic)
+      .order("created_at", { ascending: false });
+
+    if (error) throw error;
+    return data as unknown as UserRoadmap[];
+  } catch (error: any) {
+    console.error(`Error fetching roadmaps for topic ${topic}:`, error.message);
+    return [];
   }
 };

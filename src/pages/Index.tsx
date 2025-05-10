@@ -16,6 +16,7 @@ interface FormData {
   name: string;
   goal: string;
   language: string;
+  topic: string;
   currentSkill: number;
   learningStyle: string;
   timeCommitment: string;
@@ -26,7 +27,12 @@ const Index = () => {
   const { toast } = useToast();
   const [roadmapData, setRoadmapData] = useState<RoadmapData | null>(null);
   const [isGenerating, setIsGenerating] = useState(false);
-  const [userData, setUserData] = useState<{ name: string, language: string } | null>(null);
+  const [userData, setUserData] = useState<{ 
+    name: string, 
+    language: string, 
+    topic: string,
+    description: string 
+  } | null>(null);
   const isMobile = useMediaQuery("(max-width: 768px)");
 
   const handleFormSubmit = async (formData: FormData) => {
@@ -36,7 +42,9 @@ const Index = () => {
       // Store user name and language for display purposes
       setUserData({
         name: formData.name,
-        language: formData.language
+        language: formData.language,
+        topic: formData.topic || "General Learning",
+        description: `A personalized ${formData.topic || formData.language} learning path for ${formData.name || "a learner"} with ${formData.goal} as the main goal.`
       });
       
       // Generate roadmap (this would normally call an AI API)
@@ -54,7 +62,7 @@ const Index = () => {
       
       toast({
         title: "Roadmap generated successfully",
-        description: `Your personalized ${formData.language} learning path is ready!`,
+        description: `Your personalized ${formData.topic || formData.language} learning path is ready!`,
         variant: "default",
       });
     } catch (error) {
@@ -72,8 +80,8 @@ const Index = () => {
   return (
     <div className="flex flex-col min-h-screen">
       <SEOHead 
-        title={roadmapData ? `${userData?.language} Learning Roadmap - CodeVoyage AI` : undefined}
-        description={roadmapData ? `Personalized ${userData?.language} roadmap with video tutorials and interactive exercises` : undefined}
+        title={roadmapData ? `${userData?.topic} Learning Roadmap - CodeVoyage AI` : undefined}
+        description={userData?.description || undefined}
       />
       <Navbar />
       <main className="flex-grow">
@@ -84,7 +92,7 @@ const Index = () => {
             <div className="container py-16">
               <div className="max-w-4xl mx-auto">
                 <div className="flex flex-col items-center justify-center p-10 border rounded-lg bg-card">
-                  <LoadingSpinner size={40} message={`Creating your personalized ${userData?.language} roadmap...`} />
+                  <LoadingSpinner size={40} message={`Creating your personalized ${userData?.topic || userData?.language} roadmap...`} />
                 </div>
               </div>
             </div>
@@ -94,8 +102,10 @@ const Index = () => {
                 <div className="flex justify-end mb-4">
                   <SaveRoadmapButton 
                     roadmapData={roadmapData} 
-                    title={`${userData.language} Learning Roadmap`}
+                    title={`${userData.topic} Learning Roadmap`}
                     language={userData.language}
+                    topic={userData.topic}
+                    description={userData.description}
                   />
                 </div>
                 <Roadmap 

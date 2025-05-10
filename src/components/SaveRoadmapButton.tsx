@@ -12,9 +12,17 @@ interface SaveRoadmapButtonProps {
   roadmapData: RoadmapData;
   title: string;
   language: string;
+  topic: string;
+  description: string;
 }
 
-const SaveRoadmapButton = ({ roadmapData, title, language }: SaveRoadmapButtonProps) => {
+const SaveRoadmapButton = ({ 
+  roadmapData, 
+  title, 
+  language,
+  topic,
+  description 
+}: SaveRoadmapButtonProps) => {
   const { toast } = useToast();
   const { user } = useAuth();
   const navigate = useNavigate();
@@ -33,7 +41,7 @@ const SaveRoadmapButton = ({ roadmapData, title, language }: SaveRoadmapButtonPr
 
     setSaving(true);
     try {
-      const id = await saveRoadmap(title, language, roadmapData);
+      const id = await saveRoadmap(title, language, topic, description, roadmapData);
       
       if (id) {
         toast({
